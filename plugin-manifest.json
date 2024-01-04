@@ -7,13 +7,57 @@
   "modules": {
     "widgets": [
       {
-        "location": "invoice.creation.sidebar",
+        "location": "salesorder.details.sidebar",
         "name": "Inventory Extension",
         "url": "/app/widget.html",
-        "logo": "/app/img/logo.png"
+        "logo": "/app/img/logo.png",
+        "type": "modal"
       }
     ]
   },
   "config": [],
-  "usedConnections": []
+  "usedConnections": [
+    {
+      "connectionLinkName": "inventory_conn",
+      "connectionName": "inventory conn",
+      "serviceName": "zoho_inventory",
+      "userAccess": false,
+      "isUserDefinedService": false,
+      "sharedBy": "20067754174",
+      "scope": [
+        "ZohoInventory.FullAccess.all",
+        "ZohoInventory.bills.All",
+        "ZohoInventory.bills.CREATE",
+        "ZohoInventory.bills.READ",
+        "ZohoInventory.bills.UPDATE",
+        "ZohoInventory.contacts.All",
+        "ZohoInventory.contacts.CREATE",
+        "ZohoInventory.contacts.READ",
+        "ZohoInventory.contacts.UPDATE",
+        "ZohoInventory.creditnotes.All",
+        "ZohoInventory.creditnotes.CREATE",
+        "ZohoInventory.creditnotes.READ",
+        "ZohoInventory.creditnotes.UPDATE",
+        "ZohoInventory.customerpayments.All",
+        "ZohoInventory.customerpayments.CREATE",
+        "ZohoInventory.invoices.All",
+        "ZohoInventory.invoices.CREATE",
+        "ZohoInventory.invoices.READ",
+        "ZohoInventory.invoices.UPDATE",
+        "ZohoInventory.items.CREATE",
+        "ZohoInventory.items.READ",
+        "ZohoInventory.items.UPDATE",
+        "ZohoInventory.purchaseorders.All",
+        "ZohoInventory.purchaseorders.CREATE",
+        "ZohoInventory.purchaseorders.READ",
+        "ZohoInventory.purchaseorders.UPDATE",
+        "ZohoInventory.salesorders.All",
+        "ZohoInventory.salesorders.CREATE",
+        "ZohoInventory.salesorders.READ",
+        "ZohoInventory.salesorders.UPDATE",
+        "ZohoInventory.vendorpayments.All",
+        "ZohoInventory.vendorpayments.CREATE"
+      ]
+    }
+  ]
 }
