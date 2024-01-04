@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title>FGAS Modal Widget</title>
+	<link rel="stylesheet" href="css/fgas.css">
+	<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+	<script src="js/extension.js"></script>
+</head>
+
+<body>
+
+	<section class="main_record">
+		<div class="card">
+			<h2>FGAS</h2>
+			<div class="field">
+				<label for="fgas_record_id">ID:</label>
+				<input value="FGAS-060203" name="fgas_record_id" type="text" readonly />
+			</div>
+			<div class="field">
+				<label for="sales_order_number">SO:</label>
+				<input value="SO-060203" name="sales_order_number" type="text" readonly />
+			</div>
+			<div class="action-wrapper">
+				<button disabled type="button">Next</button>
+			</div>
+		</div>
+	</section>
+
+	<!-- TEMPLATES -->
+	<template id="item_template">
+		<div class="card">
+			<h2>Equipment</h2>
+			<div class="field">
+				<label for="charge">Charge (g):</label>
+				<input value="65" name="charge" type="number" />
+			</div>
+			<div class="field">
+				<label for="refrigerant">Refrigerant Gas:</label>
+				<input value="R290" name="refrigerant" type="text" />
+			</div>
+			<div class="field">
+				<label for="quantity">Quantity:</label>
+				<input value="1" name="quantity" type="number" />
+			</div>
+			<div class="field">
+				<label for="notes">Notes:</label>
+				<textarea rows="5" cols="40"></textarea>
+			</div>
+			<div class="action-wrapper">
+				<button disabled type="button">Next<button>
+			</div>
+		</div>
+	</template>
+	<template id="installer_template">
+		<div class="card">
+			<h2>Installer</h2>
+			<div class="field">
+				<label for="name">Name:</label>
+				<input value="" name="name" type="text" />
+			</div>
+			<div class="field">
+				<label for="fgas_number">FGAS Number:</label>
+				<input value="" name="fgas_number" type="text" />
+			</div>
+			<div class="field">
+				<label for="notes">Notes:</label>
+				<textarea rows="5" cols="40"></textarea>
+			</div>
+			<div class="action-wrapper">
+				<button disabled type="button">Next<button>
+			</div>
+		</div>
+	</template>
+
+	<script src="https://js.zohostatic.com/zohofinance/v1/zf_sdk.js"></script>
+	<script>
+		window.onload = function () {
+
+			ZFAPPS.extension.init().then(function (App) {
+
+				// Prepare UI.
+				resizeModal().then(() => {
+				});
+
+				// Prepare data.
+				getSONumber().then(() => {
+					getFGASRecord();
+				});
+			
+			});
+
+		};
+	</script>
+
+	<script src="./js/extension.js" charset="utf-8"></script>
+
+</body>
+
+</html>
