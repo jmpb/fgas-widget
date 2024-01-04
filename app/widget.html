@@ -28,6 +28,7 @@
 		</div>
 	</section>
 
+	<!-- TEMPLATES -->
 	<template id="item_template">
 		<div class="card">
 			<h2>Equipment</h2>
@@ -52,7 +53,6 @@
 			</div>
 		</div>
 	</template>
-
 	<template id="installer_template">
 		<div class="card">
 			<h2>Installer</h2>
@@ -80,43 +80,13 @@
 
 		ZFAPPS.extension.init().then(function (App) {
 
-		 //Get invoice data
- 		 ZFAPPS.get('invoice').then(function (res) {
- 					//response Handling
- 		 }).catch(function (err) {
- 					//error Handling
- 		 });
- 		/*
-				//To Set data in inventory app UI client
-				ZFAPPS.set('invoice.reference_number', 'REF-001').then(function (res) {
+			//Get salesorder data
+			ZFAPPS.get('salesorder').then(function (res) {
 					//response Handling
-				}).catch(function (err) {
+			}).catch(function (err) {
 					//error Handling
-				});
-
-				//To resize the frame size
-				ZFAPPS.invoke('RESIZE', { width: '100px', height: '100px'}).then(function (res) {
-					//response Handling
-				}).catch(function (err) {
-					//error Handling
-				});
-
-				//To refresh the inventory app invoice data
-				ZFAPPS.invoke('REFRESH_DATA', 'invoice').then(function (res) {
-					//response Handling
-				}).catch(function (err) {
-					//error Handling
-				});
-
-
-				//To listen inventory app event
-				App.instance.on('ON_INVOICE_CHANGE', function(data){
-					//data handling
-				});
-
-
-				//To Know more on these, please read the documentation
- 					*/
+			});
+ 		
  		});
 
 	};
