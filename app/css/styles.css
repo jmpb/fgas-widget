@@ -2,6 +2,39 @@
 @tailwind components;
 @tailwind utilities;
 
+body {
+    max-width: 500px;
+    @apply m-auto;
+}
+
+h2 {
+    @apply text-xl w-full col-span-2;
+}
+
+label {
+    @apply font-bold;
+}
+
 input:read-only {
     @apply text-slate-400 px-2 ring-1 ring-slate-300 bg-slate-200 rounded shadow outline-none;
+}
+
+button {
+    @apply rounded-lg border-black px-8 border-2 bg-sky-600 text-white font-bold text-center;
+}
+
+button:disabled {
+    @apply rounded-lg border-slate-200 px-8 border-2 bg-slate-400 text-black font-bold text-center;
+}
+
+.card {
+    @apply container mx-auto p-4 rounded-xl border-slate-50 border-2 grid grid-cols-2 gap-y-1.5 shadow;
+}
+
+.action-wrapper {
+    @apply w-full col-span-2;
+}
+
+section.main_record {
+    @apply container mx-auto px-4 py-2;
 }

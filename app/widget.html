@@ -11,22 +11,68 @@
 
 <body>
 
-	<div class="container mx-auto px-4 py-2">
-		<div class="container mx-auto p-4 rounded-xl border-slate-50 border-2 grid grid-cols-2 gap-y-1.5">
-			<h2 class="text-xl w-full col-span-2">FGAS</h2>
-			<div>
-				<label class="font-bold" for="fgas_record_id">ID:</label>
+	<section class="main_record">
+		<div class="card">
+			<h2>FGAS</h2>
+			<div class="field">
+				<label for="fgas_record_id">ID:</label>
 				<input value="FGAS-060203" name="fgas_record_id" type="text" readonly />
 			</div>
-			<div>
-				<label class="font-bold" for="sales_order_number">SO:</label>
+			<div class="field">
+				<label for="sales_order_number">SO:</label>
 				<input value="SO-060203" name="sales_order_number" type="text" readonly />
 			</div>
-			<div class="w-full col-span-2">
-				<button disabled type="button" class="rounded-lg border-black px-8 border-2 bg-sky-600 text-white font-bold text-center">Next</button>
+			<div class="action-wrapper">
+				<button disabled type="button">Next</button>
 			</div>
 		</div>
-	</div>
+	</section>
+
+	<template id="item_template">
+		<div class="card">
+			<h2>Equipment</h2>
+			<div class="field">
+				<label for="charge">Charge (g):</label>
+				<input value="65" name="charge" type="number" />
+			</div>
+			<div class="field">
+				<label for="refrigerant">Refrigerant Gas:</label>
+				<input value="R290" name="refrigerant" type="text" />
+			</div>
+			<div class="field">
+				<label for="quantity">Quantity:</label>
+				<input value="1" name="quantity" type="number" />
+			</div>
+			<div class="field">
+				<label for="notes">Notes:</label>
+				<textarea rows="5" cols="40"></textarea>
+			</div>
+			<div class="action-wrapper">
+				<button disabled type="button">Next<button>
+			</div>
+		</div>
+	</template>
+
+	<template id="installer_template">
+		<div class="card">
+			<h2>Installer</h2>
+			<div class="field">
+				<label for="name">Name:</label>
+				<input value="" name="name" type="text" />
+			</div>
+			<div class="field">
+				<label for="fgas_number">FGAS Number:</label>
+				<input value="" name="fgas_number" type="text" />
+			</div>
+			<div class="field">
+				<label for="notes">Notes:</label>
+				<textarea rows="5" cols="40"></textarea>
+			</div>
+			<div class="action-wrapper">
+				<button disabled type="button">Next<button>
+			</div>
+		</div>
+	</template>
 
 	<script src="https://js.zohostatic.com/zohofinance/v1/zf_sdk.js"></script>
 	<script>

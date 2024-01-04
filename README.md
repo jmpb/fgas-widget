@@ -17,7 +17,7 @@ Added via CDN in `app/widget.html`.
 
 ### [Tailwind](https://tailwindcss.com/)
 
-Tailwind allows quick use of styles, input is taken from CSS, HTML and JS files in the `app` folder as defined in the `tailwind.config.js` file.
+Tailwind allows quick use of styles, input is taken from CSS, HTML and JS files in the `app` folder as defined in the `tailwind.config.js` file. When the CSS is compiled, it will build the Tailwind relevant classes that are used and output them to the `app/css/fgas.css` file.
 
 Tailwind build command:
 
