@@ -1,0 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+input:read-only {
+    @apply text-slate-400 px-2 ring-1 ring-slate-300 bg-slate-200 rounded shadow outline-none;
+}
