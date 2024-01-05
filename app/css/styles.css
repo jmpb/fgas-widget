@@ -7,6 +7,10 @@ body {
     @apply m-auto;
 }
 
+[x-cloak] {
+    display: none !important;
+}
+
 h2 {
     @apply text-xl w-full col-span-2;
 }

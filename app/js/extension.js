@@ -53,7 +53,7 @@ function getFGASRecord() {
                 const element = responseJSON.module_records[index];
                 if (element.record_name == fgas_record_name) {
                     Alpine.store("fgasrecord", element);
-                    resolve();
+                    resolve(element);
                 }
             };
         }).catch(function (err) {
@@ -88,7 +88,7 @@ function getFGASRelatedRecord(module_api_name, store_key) {
         ZFAPPS.request(options).then(function (response) {
             let responseJSON = JSON.parse(response.data.body);
             Alpine.store(store_key, responseJSON.module_records);
-            resolve();
+            resolve(responseJSON.module_records);
         }).catch(function (err) {
             reject(err);
         });

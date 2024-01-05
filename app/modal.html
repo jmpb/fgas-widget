@@ -6,53 +6,62 @@
 	<title>FGAS Modal Widget</title>
 	<link rel="stylesheet" href="css/fgas.css">
 	<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
-	<script src="js/extension.js"></script>
 </head>
 
 <body>
 
-	<section class="main_record">
-		<div class="card">
-			<h2>FGAS</h2>
-			<div class="field">
-				<label for="fgas_record_id">ID:</label>
-				<input value="FGAS-060203" name="fgas_record_id" type="text" readonly />
+	<div x-cloak x-data="FGASRecord" @get-record.window="getRecord()">
+		<section class="main_record">
+			<div class="card" x-show="loading">
+				<p>Loading data...</p>
 			</div>
-			<div class="field">
-				<label for="sales_order_number">SO:</label>
-				<input value="SO-060203" name="sales_order_number" type="text" readonly />
+			<div class="card" x-show="!loading">
+				<h2 x-text="record.record_name"></h2>
+				<div class="field">
+					<label for="fgas_record_id">ID:</label>
+					<input x-model="record.record_name" name="fgas_record_id" type="text" readonly />
+				</div>
+				<div class="field">
+					<label for="sales_order_number">SO:</label>
+					<input x-model="Alpine.store('salesorder_number')" name="sales_order_number" type="text" readonly />
+				</div>
+				<!-- <div class="action-wrapper">
+					<button disabled type="button">Next</button>
+				</div> -->
 			</div>
-			<div class="action-wrapper">
-				<button disabled type="button">Next</button>
-			</div>
-		</div>
-	</section>
+		</section>
+	</div>
 
-	<!-- TEMPLATES -->
-	<template id="item_template">
-		<div class="card">
-			<h2>Equipment</h2>
-			<div class="field">
-				<label for="charge">Charge (g):</label>
-				<input value="65" name="charge" type="number" />
-			</div>
-			<div class="field">
-				<label for="refrigerant">Refrigerant Gas:</label>
-				<input value="R290" name="refrigerant" type="text" />
-			</div>
-			<div class="field">
-				<label for="quantity">Quantity:</label>
-				<input value="1" name="quantity" type="number" />
-			</div>
-			<div class="field">
-				<label for="notes">Notes:</label>
-				<textarea rows="5" cols="40"></textarea>
-			</div>
-			<div class="action-wrapper">
-				<button disabled type="button">Next<button>
-			</div>
+	<div x-cloak x-data="FGASItems" @get-record.window="getItemRecords()"></div>
+		<div class="card" x-show="loading">
+			<p>Loading data...</p>
 		</div>
-	</template>
+		<template x-for="item in records" :key="item.record_name">
+			<div class="card">
+				<h2 x-text="item.cf_fgas_item_id"></h2>
+				<div class="field">
+					<label for="charge">Charge (g):</label>
+					<input x-model="item.cf_charge_g" name="charge" type="number" />
+				</div>
+				<div class="field">
+					<label for="refrigerant">Refrigerant Gas:</label>
+					<input x-model="item.cf_gas_type" name="refrigerant" type="text" />
+				</div>
+				<div class="field">
+					<label for="quantity">Quantity:</label>
+					<input x-model="item.cf_quantity" name="quantity" type="number" />
+				</div>
+				<div class="field">
+					<label for="notes">Notes:</label>
+					<textarea rows="5" cols="40"></textarea>
+				</div>
+				<!-- <div class="action-wrapper">
+					<button disabled type="button">Next<button>
+				</div> -->
+			</div>
+		</template>
+	</div>
+	
 	<template id="installer_template">
 		<div class="card">
 			<h2>Installer</h2>
@@ -76,6 +85,36 @@
 
 	<script src="https://js.zohostatic.com/zohofinance/v1/zf_sdk.js"></script>
 	<script>
+
+		document.addEventListener('alpine:init', () => {	
+			Alpine.data('FGASRecord', () => ({
+				loading: true,
+				record: {},
+
+				getRecord() {
+					console.log("Fetching record...");
+					getFGASRecord().then((data) => {
+						this.record = data;
+						this.loading = false;
+					});
+				}
+
+			}));
+			Alpine.data('FGASItems', () => ({
+				loading: true,
+				records: [],
+
+				getItemRecords() {
+					console.log("Fetching item records...");
+					getFGASRelatedRecord("cm_fgas_item", "fgasitems").then((data) => {
+						this.records = data;
+						this.loading = false;
+					});
+				}
+
+			}));
+		});
+
 		window.onload = function () {
 
 			ZFAPPS.extension.init().then(function (App) {
@@ -86,8 +125,9 @@
 
 				// Prepare data.
 				getSONumber().then(() => {
-					getFGASRecord(); // Alpine.store('fgasrecord')
-					getFGASRelatedRecord("cm_fgas_item", "fgasitems");  // Alpine.store('fgasitems')
+					const event = new CustomEvent('get-record');
+					window.dispatchEvent(event); // dispatch custom event to let FGASRecord know it can fetch now
+					console.log("'get-record' event dispatched!");
 					getFGASRelatedRecord("cm_fgas_installer", "fgasinstallers"); // Alpine.store('fgasinstallers')
 				});
 			
@@ -96,8 +136,7 @@
 		};
 	</script>
 
-	<script src="./js/extension.js" charset="utf-8"></script>
-
+	<script src="js/extension.js"></script>
 </body>
 
 </html>
