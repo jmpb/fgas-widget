@@ -86,7 +86,15 @@
 
 				// Prepare data.
 				getSONumber().then(() => {
-					getFGASRecord();
+					getFGASRecord("cm_fgas_record",
+								{key:"cf_record_id", value: "FGAS-060203"},
+								"record_name", "fgasrecord"); // Alpine.store('fgasrecord')
+					getFGASRecord("cm_fgas_item",
+								{key:"cf_fgas_record", value: "FGAS-060203"},
+								"cf_fgas_record", "fgasitems");  // Alpine.store('fgasitems')
+					getFGASRecord("cm_fgas_installer",
+								{key:"cf_fgas_record", value: "FGAS-060203"},
+								"cf_fgas_record", "fgasinstallers"); // Alpine.store('fgasinstallers')
 				});
 			
 			});

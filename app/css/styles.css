@@ -32,7 +32,7 @@ button:disabled {
 }
 
 .action-wrapper {
-    @apply w-full col-span-2;
+    @apply w-full col-span-2 justify-self-end;
 }
 
 section.main_record {
