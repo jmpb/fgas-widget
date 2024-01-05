@@ -1,3 +1,9 @@
+# Node & ZET files
 node_modules/
 server/
+
+# Distributable
 dist/
+
+# Generated CSS output
+app/css/fgas.css
