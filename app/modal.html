@@ -36,17 +36,24 @@
 		<div class="card" x-show="loading">
 			<p>Loading data...</p>
 		</div>
-		<div class="dots" x-show="!loading">
-			<template x-for="[id, _] in Object.entries(records)" :key="id">
-				<div class="dot"
-					:class="{ 'active': id == activeIndex }"
-					@click="setActiveRecord(id)">
-				</div>
-			</template>
+		<div class="toolbar">
+			<div class="dots" x-show="!loading">
+				<template x-for="[id, _] in Object.entries(records)" :key="id">
+					<div class="dot"
+						:class="{ 'active': id == activeIndex }"
+						@click="setActiveRecord(id)">
+					</div>
+				</template>
+				<div class="dot add" @click="addNewItem()"></div>
+			</div>
 		</div>
 		<template x-show="!loading" x-if="activeRecord">
 			<div class="card">
 				<h2 x-text="activeRecord.cf_fgas_item_id"></h2>
+				<div class="field">
+					<label for="sku">SKU:</label>
+					<input x-model="activeRecord.cf_sku" name="sku" type="text" readonly />
+				</div>
 				<div class="field">
 					<label for="charge">Charge (g):</label>
 					<input x-model="activeRecord.cf_charge_g" name="charge" type="number" />
@@ -61,11 +68,8 @@
 				</div>
 				<div class="field">
 					<label for="notes">Notes:</label>
-					<textarea rows="5" cols="20"></textarea>
+					<textarea x-model="activeRecord.cf_notes" rows="5" cols="40"></textarea>
 				</div>
-				<!-- <div class="action-wrapper">
-					<button disabled type="button">Next<button>
-				</div> -->
 			</div>
 		</template>
 	</div>
@@ -108,6 +112,7 @@
 				}
 
 			}));
+			
 			Alpine.data('FGASItems', () => ({
 				loading: true,
 				records: [],

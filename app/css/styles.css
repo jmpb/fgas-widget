@@ -39,16 +39,20 @@ button:disabled {
     @apply rounded-lg border-slate-200 px-8 border-2 bg-slate-400 text-black font-bold text-center;
 }
 
+.toolbar {
+    @apply grid grid-cols-2;
+}
+
 .dots {
     @apply flex gap-2;
 }
 
 .dot {
-    @apply bg-slate-500 rounded-full w-4 h-4;
+    @apply bg-slate-300 rounded-full w-4 h-4;
 }
 
 .dot.active {
-    @apply bg-slate-950;
+    @apply bg-sky-700;
 }
 
 .card {
