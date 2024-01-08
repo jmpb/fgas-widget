@@ -48,8 +48,8 @@
 				</div>
 				<h1>Equipment</h1>
 				<div class="actions">
-					<div class="add" @click="addItem()" title="add item">+</div>
-					<div class="delete" @click="deleteItem()" title="delete item">x</div>
+					<div class="add" @click="addItem()" title="Add Item">+</div>
+					<div class="delete" @click="deleteItem()" title="Delete Item">x</div>
 				</div>
 			</div>
 			<template x-show="!loading" x-if="activeRecord">
@@ -77,33 +77,52 @@
 					</div>
 					<div class="field">
 						<label for="notes">Notes:</label>
-						<textarea x-model="activeRecord.cf_notes" rows="5" cols="40"></textarea>
+						<textarea x-model="activeRecord.cf_notes" rows="3" cols="40"></textarea>
 					</div>
 				</div>
 			</template>
 		</section>
 	</div>
 	
-	<template id="installer_template">
-		<div class="card">
-			<h2>Installer</h2>
-			<div class="field">
-				<label for="name">Name:</label>
-				<input value="" name="name" type="text" />
+	<div x-cloak x-data="FGASInstallers" @get-record.window="getInstallerRecords()">
+		<section>
+			<div class="card" x-show="loading">
+				<p>Loading data...</p>
 			</div>
-			<div class="field">
-				<label for="fgas_number">FGAS Number:</label>
-				<input value="" name="fgas_number" type="text" />
+			<div class="toolbar" x-show="!loading">
+				<div class="dots">
+					<template x-for="[id, item] in Object.entries(records)" :key="id">
+						<div class="dot"
+							:class="[( id == activeIndex ? 'active' : '' ), ( item.is_new == true ? 'new' : '' )]"
+							@click="setActiveRecord(id)" x-text="Number(id)+1">
+						</div>
+					</template>
+				</div>
+				<h1>Installers</h1>
+				<div class="actions">
+					<div class="add" @click="addInstaller()" title="Add Installer">+</div>
+					<div class="delete" @click="deleteInstaller()" title="Delete Installer">x</div>
+				</div>
 			</div>
-			<div class="field">
-				<label for="notes">Notes:</label>
-				<textarea rows="5" cols="40"></textarea>
-			</div>
-			<div class="action-wrapper">
-				<button disabled type="button">Next<button>
-			</div>
-		</div>
-	</template>
+			<template x-show="!loading" x-if="activeRecord">
+				<div class="card">
+					<h2 x-text="activeRecord.cf_installer_id"></h2>
+					<div class="field col-span-2">
+						<label for="name">Name:</label>
+						<input x-model="activeRecord.cf_installer_name" name="name" type="text" />
+					</div>
+					<div class="field col-span-2">
+						<label for="fgas_number">FGAS Number:</label>
+						<input x-model="activeRecord.cf_fgas_number" name="fgas_number" type="text" />
+					</div>
+					<div class="field">
+						<label for="notes">Notes:</label>
+						<textarea x-model="activeRecord.cf_notes" rows="3" cols="40"></textarea>
+					</div>
+				</div>
+			</template>
+		</section>
+	</div>
 
 	<script src="https://js.zohostatic.com/zohofinance/v1/zf_sdk.js"></script>
 	<script>
@@ -185,6 +204,58 @@
 				calcTotalGas() {
 					this.activeRecord.total_gas = this.activeRecord.cf_quantity * this.activeRecord.cf_charge_g;
 				}
+			}));
+
+			Alpine.data('FGASInstallers', () => ({
+				loading: true,
+				records: [],
+				activeIndex: 0,
+				activeRecord: {},
+
+				getInstallerRecords() {
+					console.log("Fetching installer records...");
+					getFGASRelatedRecord("cm_fgas_installer", "fgasinstallers").then((data) => {
+						this.records = data;
+						this.activeRecord = this.records[this.activeIndex];
+						this.loading = false;
+					});
+				},
+
+				nextItemRecord() {
+					this.activeIndex < this.records.length ? this.activeIndex++ : this.activeIndex = 0;
+					this.activeRecord = this.records[this.activeIndex];
+				},
+
+				prevItemRecord() {
+					this.activeIndex > 0 ? this.activeIndex-- : this.activeIndex = this.records.length;
+					this.activeRecord = this.records[this.activeIndex];
+				},
+
+				setActiveRecord(id) {
+					this.activeIndex = id;
+					this.activeRecord = this.records[this.activeIndex];
+				},
+
+				addInstaller() {
+					let newItem = {
+						cf_installer_id: "New Installer",
+						cf_installer_name: "",
+						cf_fgas_number: "",
+						cf_notes: "",
+						is_new: true
+					};
+					this.records.push(newItem);
+					this.activeIndex = this.records.length - 1;
+					this.activeRecord = this.records[this.activeIndex];
+				},
+
+				deleteInstaller() {
+					if (confirm("Really delete FGAS record for installer: " + this.activeRecord.cf_installer_name + "? This cannot be undone.")) {
+						this.records.splice(this.activeIndex, 1);
+						this.activeIndex = 0;
+						this.activeRecord = this.records[this.activeIndex];
+					}
+				},
 			}));
 		});
 
