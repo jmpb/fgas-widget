@@ -32,7 +32,7 @@
 		</section>
 	</div>
 
-	<div x-cloak x-data="FGASItems" @get-record.window="getItemRecords()"></div>
+	<div x-cloak x-data="FGASItems" @get-record.window="getItemRecords()">
 		<div class="card" x-show="loading">
 			<p>Loading data...</p>
 		</div>
@@ -110,6 +110,10 @@
 						this.records = data;
 						this.loading = false;
 					});
+				},
+
+				renderItemRecords() {
+
 				}
 
 			}));
