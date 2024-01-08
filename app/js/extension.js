@@ -1,7 +1,7 @@
 
 function resizeModal() {
     return new Promise((resolve, reject) => {
-        ZFAPPS.invoke('RESIZE', { width: '1000px', height: '800px' }
+        ZFAPPS.invoke('RESIZE', { width: '600px', height: '800px' }
         ).then(
             () => { console.log('Resized Modal Successfully') }
         ).then(

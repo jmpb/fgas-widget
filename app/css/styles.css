@@ -48,14 +48,21 @@ button:disabled {
 }
 
 .dot {
-    @apply bg-slate-300 rounded-full w-4 h-4 text-white text-sm;
+    @apply bg-sky-200 rounded-full w-4 h-4 text-white text-sm cursor-pointer;
     line-height: 16px;
     text-align: center;
-    vertical-align: center;
+}
+
+.dot.new {
+    @apply bg-green-200;
 }
 
 .dot.active {
-    @apply bg-sky-700;
+    @apply bg-sky-600;
+}
+
+.dot.active.new {
+    @apply bg-green-600;
 }
 
 .toolbar h1 {
@@ -67,11 +74,11 @@ button:disabled {
 }
 
 .actions .add {
-    @apply text-green-600;
+    @apply text-green-600 cursor-pointer;
 }
 
 .actions .delete {
-    @apply text-red-600;
+    @apply text-red-600 cursor-pointer;
 }
 
 .card {

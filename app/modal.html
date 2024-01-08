@@ -39,29 +39,33 @@
 			</div>
 			<div class="toolbar" x-show="!loading">
 				<div class="dots">
-					<template x-for="[id, _] in Object.entries(records)" :key="id">
+					<template x-for="[id, item] in Object.entries(records)" :key="id">
 						<div class="dot"
-							:class="{ 'active': id == activeIndex }"
+							:class="[( id == activeIndex ? 'active' : '' ), ( item.is_new == true ? 'new' : '' )]"
 							@click="setActiveRecord(id)" x-text="Number(id)+1">
 						</div>
 					</template>
 				</div>
 				<h1>Equipment</h1>
 				<div class="actions">
-					<div class="add" @click="addNewItem()" title="add item">+</div>
+					<div class="add" @click="addItem()" title="add item">+</div>
 					<div class="delete" @click="deleteItem()" title="delete item">x</div>
 				</div>
 			</div>
 			<template x-show="!loading" x-if="activeRecord">
 				<div class="card">
 					<h2 x-text="activeRecord.cf_fgas_item_id"></h2>
+					<div class="field col-span-2">
+						<label for="total_gas">Total Gas Charge (g):</label>
+						<input x-model="activeRecord.total_gas" name="total_gas" type="number" readonly />
+					</div>
 					<div class="field">
 						<label for="sku">SKU:</label>
-						<input x-model="activeRecord.cf_sku" name="sku" type="text" readonly />
+						<input x-model="activeRecord.cf_sku" name="sku" type="text" :readonly="!activeRecord.is_new" />
 					</div>
 					<div class="field">
 						<label for="charge">Charge (g):</label>
-						<input x-model="activeRecord.cf_charge_g" name="charge" type="number" />
+						<input x-model="activeRecord.cf_charge_g" x-on:change.debounce="calcTotalGas()" name="charge" type="number" />
 					</div>
 					<div class="field">
 						<label for="refrigerant">Refrigerant Gas:</label>
@@ -69,7 +73,7 @@
 					</div>
 					<div class="field">
 						<label for="quantity">Quantity:</label>
-						<input x-model="activeRecord.cf_quantity" name="quantity" type="number" />
+						<input x-model="activeRecord.cf_quantity" x-on:change.debounce="calcTotalGas()" name="quantity" type="number" />
 					</div>
 					<div class="field">
 						<label for="notes">Notes:</label>
@@ -130,6 +134,7 @@
 					getFGASRelatedRecord("cm_fgas_item", "fgasitems").then((data) => {
 						this.records = data;
 						this.activeRecord = this.records[this.activeIndex];
+						this.calcTotalGas();
 						this.loading = false;
 					});
 				},
@@ -137,16 +142,48 @@
 				nextItemRecord() {
 					this.activeIndex < this.records.length ? this.activeIndex++ : this.activeIndex = 0;
 					this.activeRecord = this.records[this.activeIndex];
+					this.calcTotalGas();
 				},
 
 				prevItemRecord() {
 					this.activeIndex > 0 ? this.activeIndex-- : this.activeIndex = this.records.length;
 					this.activeRecord = this.records[this.activeIndex];
+					this.calcTotalGas();
 				},
 
 				setActiveRecord(id) {
 					this.activeIndex = id;
 					this.activeRecord = this.records[this.activeIndex];
+					this.calcTotalGas();
+				},
+
+				addItem() {
+					let newItem = {
+						cf_fgas_item_id: "New item",
+						cf_sku: "",
+						cf_charge_g: "",
+						cf_gas_type: "",
+						cf_quantity: "",
+						cf_notes: "",
+						is_new: true
+					};
+					this.records.push(newItem);
+					this.activeIndex = this.records.length - 1;
+					this.activeRecord = this.records[this.activeIndex];
+					this.calcTotalGas();
+				},
+
+				deleteItem() {
+					if (confirm("Really delete FGAS record for item: " + this.activeRecord.cf_fgas_item_id + "? This cannot be undone.")) {
+						this.records.splice(this.activeIndex, 1);
+						this.activeIndex = 0;
+						this.activeRecord = this.records[this.activeIndex];
+						this.calcTotalGas();
+					}
+				},
+
+				calcTotalGas() {
+					this.activeRecord.total_gas = this.activeRecord.cf_quantity * this.activeRecord.cf_charge_g;
 				}
 			}));
 		});
