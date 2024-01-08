@@ -36,24 +36,32 @@
 		<div class="card" x-show="loading">
 			<p>Loading data...</p>
 		</div>
-		<template x-for="item in records" :key="item.record_name">
+		<div class="dots" x-show="!loading">
+			<template x-for="[id, _] in Object.entries(records)" :key="id">
+				<div class="dot"
+					:class="{ 'active': id == activeIndex }"
+					@click="setActiveRecord(id)">
+				</div>
+			</template>
+		</div>
+		<template x-show="!loading" x-if="activeRecord">
 			<div class="card">
-				<h2 x-text="item.cf_fgas_item_id"></h2>
+				<h2 x-text="activeRecord.cf_fgas_item_id"></h2>
 				<div class="field">
 					<label for="charge">Charge (g):</label>
-					<input x-model="item.cf_charge_g" name="charge" type="number" />
+					<input x-model="activeRecord.cf_charge_g" name="charge" type="number" />
 				</div>
 				<div class="field">
 					<label for="refrigerant">Refrigerant Gas:</label>
-					<input x-model="item.cf_gas_type" name="refrigerant" type="text" />
+					<input x-model="activeRecord.cf_gas_type" name="refrigerant" type="text" />
 				</div>
 				<div class="field">
 					<label for="quantity">Quantity:</label>
-					<input x-model="item.cf_quantity" name="quantity" type="number" />
+					<input x-model="activeRecord.cf_quantity" name="quantity" type="number" />
 				</div>
 				<div class="field">
 					<label for="notes">Notes:</label>
-					<textarea rows="5" cols="40"></textarea>
+					<textarea rows="5" cols="20"></textarea>
 				</div>
 				<!-- <div class="action-wrapper">
 					<button disabled type="button">Next<button>
@@ -103,19 +111,32 @@
 			Alpine.data('FGASItems', () => ({
 				loading: true,
 				records: [],
+				activeIndex: 0,
+				activeRecord: {},
 
 				getItemRecords() {
 					console.log("Fetching item records...");
 					getFGASRelatedRecord("cm_fgas_item", "fgasitems").then((data) => {
 						this.records = data;
+						this.activeRecord = this.records[this.activeIndex];
 						this.loading = false;
 					});
 				},
 
-				renderItemRecords() {
+				nextItemRecord() {
+					this.activeIndex < this.records.length ? this.activeIndex++ : this.activeIndex = 0;
+					this.activeRecord = this.records[this.activeIndex];
+				},
 
+				prevItemRecord() {
+					this.activeIndex > 0 ? this.activeIndex-- : this.activeIndex = this.records.length;
+					this.activeRecord = this.records[this.activeIndex];
+				},
+
+				setActiveRecord(id) {
+					this.activeIndex = id;
+					this.activeRecord = this.records[this.activeIndex];
 				}
-
 			}));
 		});
 

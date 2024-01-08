@@ -19,8 +19,16 @@ label {
     @apply font-bold;
 }
 
+input {
+    @apply px-2 ring-1 ring-slate-300 rounded shadow;
+}
+
 input:read-only {
     @apply text-slate-400 px-2 ring-1 ring-slate-300 bg-slate-200 rounded shadow outline-none;
+}
+
+textarea {
+    @apply px-2 ring-1 ring-slate-300 rounded shadow;
 }
 
 button {
@@ -29,6 +37,18 @@ button {
 
 button:disabled {
     @apply rounded-lg border-slate-200 px-8 border-2 bg-slate-400 text-black font-bold text-center;
+}
+
+.dots {
+    @apply flex gap-2;
+}
+
+.dot {
+    @apply bg-slate-500 rounded-full w-4 h-4;
+}
+
+.dot.active {
+    @apply bg-slate-950;
 }
 
 .card {
