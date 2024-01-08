@@ -11,7 +11,7 @@
 <body>
 
 	<div x-cloak x-data="FGASRecord" @get-record.window="getRecord()">
-		<section class="main_record">
+		<section>
 			<div class="card" x-show="loading">
 				<p>Loading data...</p>
 			</div>
@@ -33,45 +33,51 @@
 	</div>
 
 	<div x-cloak x-data="FGASItems" @get-record.window="getItemRecords()">
-		<div class="card" x-show="loading">
-			<p>Loading data...</p>
-		</div>
-		<div class="toolbar">
-			<div class="dots" x-show="!loading">
-				<template x-for="[id, _] in Object.entries(records)" :key="id">
-					<div class="dot"
-						:class="{ 'active': id == activeIndex }"
-						@click="setActiveRecord(id)">
+		<section>
+			<div class="card" x-show="loading">
+				<p>Loading data...</p>
+			</div>
+			<div class="toolbar" x-show="!loading">
+				<div class="dots">
+					<template x-for="[id, _] in Object.entries(records)" :key="id">
+						<div class="dot"
+							:class="{ 'active': id == activeIndex }"
+							@click="setActiveRecord(id)" x-text="Number(id)+1">
+						</div>
+					</template>
+				</div>
+				<h1>Equipment</h1>
+				<div class="actions">
+					<div class="add" @click="addNewItem()" title="add item">+</div>
+					<div class="delete" @click="deleteItem()" title="delete item">x</div>
+				</div>
+			</div>
+			<template x-show="!loading" x-if="activeRecord">
+				<div class="card">
+					<h2 x-text="activeRecord.cf_fgas_item_id"></h2>
+					<div class="field">
+						<label for="sku">SKU:</label>
+						<input x-model="activeRecord.cf_sku" name="sku" type="text" readonly />
 					</div>
-				</template>
-				<div class="dot add" @click="addNewItem()"></div>
-			</div>
-		</div>
-		<template x-show="!loading" x-if="activeRecord">
-			<div class="card">
-				<h2 x-text="activeRecord.cf_fgas_item_id"></h2>
-				<div class="field">
-					<label for="sku">SKU:</label>
-					<input x-model="activeRecord.cf_sku" name="sku" type="text" readonly />
+					<div class="field">
+						<label for="charge">Charge (g):</label>
+						<input x-model="activeRecord.cf_charge_g" name="charge" type="number" />
+					</div>
+					<div class="field">
+						<label for="refrigerant">Refrigerant Gas:</label>
+						<input x-model="activeRecord.cf_gas_type" name="refrigerant" type="text" />
+					</div>
+					<div class="field">
+						<label for="quantity">Quantity:</label>
+						<input x-model="activeRecord.cf_quantity" name="quantity" type="number" />
+					</div>
+					<div class="field">
+						<label for="notes">Notes:</label>
+						<textarea x-model="activeRecord.cf_notes" rows="5" cols="40"></textarea>
+					</div>
 				</div>
-				<div class="field">
-					<label for="charge">Charge (g):</label>
-					<input x-model="activeRecord.cf_charge_g" name="charge" type="number" />
-				</div>
-				<div class="field">
-					<label for="refrigerant">Refrigerant Gas:</label>
-					<input x-model="activeRecord.cf_gas_type" name="refrigerant" type="text" />
-				</div>
-				<div class="field">
-					<label for="quantity">Quantity:</label>
-					<input x-model="activeRecord.cf_quantity" name="quantity" type="number" />
-				</div>
-				<div class="field">
-					<label for="notes">Notes:</label>
-					<textarea x-model="activeRecord.cf_notes" rows="5" cols="40"></textarea>
-				</div>
-			</div>
-		</template>
+			</template>
+		</section>
 	</div>
 	
 	<template id="installer_template">
@@ -112,7 +118,7 @@
 				}
 
 			}));
-			
+
 			Alpine.data('FGASItems', () => ({
 				loading: true,
 				records: [],
