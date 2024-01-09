@@ -14,11 +14,12 @@
 		<p>Click to create initial FGAS records linked to this Sales Order.</p>
 		<p>You will then be able to modify the records as necessary.</p>
 		<div class="actions">
-			<button type="button" id="createbtn" @click="checkIfRecordsExist()">Create FGAS Records</button>
+			<button type="button" id="createbtn" @click="checkIfRecordsExist()">View FGAS Records</button>
 		</div>
 	</section>
 
 	<section id="forms" x-show="show_forms">
+		<h1>Sale FGAS Records</h1>
 		<div x-cloak x-data="FGASRecord" @get-record.window="getRecord()">
 			<section>
 				<div class="card" x-show="loading">
@@ -158,7 +159,7 @@
 				const loadingEvent = new CustomEvent('update-state');
 
 				// Prepare UI.
-				resizeModal('180px');
+				resizeModal('250px');
 
 				getSONumber();
 				getSOId();
