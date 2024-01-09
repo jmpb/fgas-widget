@@ -11,6 +11,18 @@ body {
     display: none !important;
 }
 
+section {
+    @apply container mx-auto px-4 py-2;
+}
+
+section p {
+    @apply p-4;
+}
+
+h1 {
+    @apply text-2xl w-full font-bold text-center;
+}
+
 h2 {
     @apply text-lg w-full col-span-2 italic;
 }
@@ -29,14 +41,6 @@ input:read-only {
 
 textarea {
     @apply px-2 ring-1 ring-slate-300 rounded shadow;
-}
-
-button {
-    @apply rounded-lg border-black px-8 border-2 bg-sky-600 text-white font-bold text-center;
-}
-
-button:disabled {
-    @apply rounded-lg border-slate-200 px-8 border-2 bg-slate-400 text-black font-bold text-center;
 }
 
 .toolbar {
@@ -70,7 +74,7 @@ button:disabled {
 }
 
 .actions {
-    @apply justify-self-end bg-white text-xl font-bold flex gap-2;
+    @apply justify-self-end justify-center bg-white text-xl font-bold flex gap-2;
 }
 
 .actions .add {
@@ -81,14 +85,18 @@ button:disabled {
     @apply text-red-600 cursor-pointer;
 }
 
+.actions button#savebtn, .actions button#createbtn {
+    @apply rounded-lg px-8 py-2 bg-sky-600 text-white font-bold text-center justify-self-end;
+}
+
+.actions button#savebtn:disabled, .actions button#createbtn:disabled {
+    @apply rounded-lg px-8 py-2 bg-slate-400 text-black font-bold text-center justify-self-end;
+}
+
 .card {
     @apply container mx-auto my-1 p-2 rounded-xl border-slate-50 border-2 grid grid-cols-2 gap-y-1.5 shadow;
 }
 
 .action-wrapper {
     @apply w-full col-span-2 justify-self-end;
-}
-
-section {
-    @apply container mx-auto px-4 py-1;
 }

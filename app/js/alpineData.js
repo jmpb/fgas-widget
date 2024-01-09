@@ -1,4 +1,85 @@
-document.addEventListener('alpine:init', () => {	
+document.addEventListener('alpine:init', () => {
+
+    Alpine.data('state', () => ({
+        item_mods: [],
+        installer_mods: [],
+        show_loading: true,
+        show_create: false,
+        show_forms: false,
+        show_validation: false,
+        show_process: false,
+
+        updateState(state) {
+            console.log("Changing to state: " + state);
+            switch (state) {
+
+                case "CREATE":
+                    this.show_loading = false;
+                    this.show_create = true;
+                    this.show_forms = false;
+                    this.show_validation = false;
+                    this.show_process = false;
+                    break;
+                case "UPDATE":
+                    resizeModal('800px').then(() => {
+                        this.show_loading = false;
+                        this.show_create = false;
+                        this.show_forms = true;
+                        this.show_validation = false;
+                        this.show_process = false;
+                    });
+                    break;
+                case "VALIDATE":
+                    this.show_loading = false;
+                    this.show_create = false;
+                    this.show_forms = false;
+                    this.show_validation = true;
+                    this.show_process = false;
+                    break;
+                case "PROCESS":
+                    this.show_loading = false;
+                    this.show_create = false;
+                    this.show_forms = false;
+                    this.show_validation = false;
+                    this.show_process = true;
+                    break;
+                default:
+                    this.show_loading = true;
+                    this.show_create = false;
+                    this.show_forms = false;
+                    this.show_validation = false;
+                    this.show_process = false;
+            }
+        },
+
+        checkIfRecordsExist() {
+            console.log("Checking if record exists...");
+            getFGASRecord().then(async (record) => {
+                console.log(record);
+                if(!record) {
+                    window.dispatchEvent(new CustomEvent('update-state'));
+                    console.log("No record found, creating...");
+                    await this.createFGASRecords();
+                }
+            }).then(() => {
+                // Get related
+                window.dispatchEvent(new CustomEvent('get-record')); // dispatch custom event to let FGASRecord know it can fetch now
+                getFGASRelatedRecord("cm_fgas_installer", "fgasinstallers"); // Alpine.store('fgasinstallers')
+            }).then(() => {
+                // Dispatch event
+                window.dispatchEvent(new CustomEvent('update-state', { detail: 'UPDATE' }));
+            }).catch((error) => {
+                console.log(error);
+            });
+        },
+
+        async createFGASRecords() {
+            console.log("Sending SO ID to create webhook in Zoho Inventory...");
+            await sendInventoryCreateWebhook();
+        }
+
+    }));
+
     Alpine.data('FGASRecord', () => ({
         loading: true,
         record: {},
@@ -73,7 +154,9 @@ document.addEventListener('alpine:init', () => {
         },
 
         calcTotalGas() {
-            this.activeRecord.total_gas = this.activeRecord.cf_quantity * this.activeRecord.cf_charge_g;
+            if (this.activeRecord) {
+                this.activeRecord.total_gas = this.activeRecord.cf_quantity * this.activeRecord.cf_charge_g;
+            }
         }
     }));
 

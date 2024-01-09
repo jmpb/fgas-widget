@@ -1,7 +1,7 @@
 
-function resizeModal() {
+function resizeModal(height) {
     return new Promise((resolve, reject) => {
-        ZFAPPS.invoke('RESIZE', { width: '600px', height: '800px' }
+        ZFAPPS.invoke('RESIZE', { width: '600px', height: height }
         ).then(
             () => { console.log('Resized Modal Successfully') }
         ).then(
@@ -17,6 +17,18 @@ function getSONumber() {
         //Get salesorder data
         ZFAPPS.get('salesorder.salesorder_number').then(function (res) {
             Alpine.store('salesorder_number', res["salesorder.salesorder_number"]);
+            resolve();
+        }).catch(function (err) {
+            reject(err);
+        });
+    });
+}
+
+function getSOId() {
+    return new Promise((resolve, reject) => {
+        //Get salesorder data
+        ZFAPPS.get('salesorder.salesorder_id').then(function (res) {
+            Alpine.store('salesorder_id', res["salesorder.salesorder_id"]);
             resolve();
         }).catch(function (err) {
             reject(err);
@@ -56,10 +68,37 @@ function getFGASRecord() {
                     resolve(element);
                 }
             };
+            resolve(undefined);
         }).catch(function (err) {
             reject(err);
         });
     })
+}
+
+async function sendInventoryCreateWebhook() {
+    return new Promise((resolve, reject) => {
+        // Create the records initially by sending a webhook to Inventory
+        //      the webhook will run Deluge code to create the FGAS records
+        //      for the SO.
+        var options = {
+            url: 'https://www.zohoapis.eu/inventory/v1/settings/incomingwebhooks/iw_createfgasrecords/execute?auth_type=apikey&encapiKey=yA6KbHsI6g3%2ByjlVREdr0MOLpo0xqK8%2F3Hiw5i63KMQue9m1i6E70BI9Jdu4czrZ34GFs65SONoYJNzt74lbesE0NYNSepTGTuv4P2uV48xh%2FobsBIlIjJiqArAQEqJOeRIjAyQwRvA%3D',
+            method: "GET",
+            url_query: [
+            {
+                key:"salesorder_id",
+                value: Alpine.store('salesorder_id')
+            }
+            ],
+            connection_link_name: 'inv_conn'
+        };
+
+        ZFAPPS.request(options).then(function (response) {
+            console.log(response);
+            resolve(response);
+        }).catch((error) => {
+            reject(error);
+        });
+    });
 }
 
 function getFGASRelatedRecord(module_api_name, store_key) {

@@ -8,121 +8,141 @@
 	<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
 </head>
 
-<body>
+<body x-data="state" @update-state.window="updateState($event.detail)">
+	<section id="create" x-show="show_create">
+		<h1>Sale FGAS Records</h1>
+		<p>Click to create initial FGAS records linked to this Sales Order.</p>
+		<p>You will then be able to modify the records as necessary.</p>
+		<div class="actions">
+			<button type="button" id="createbtn" @click="checkIfRecordsExist()">Create FGAS Records</button>
+		</div>
+	</section>
 
-	<div x-cloak x-data="FGASRecord" @get-record.window="getRecord()">
-		<section>
-			<div class="card" x-show="loading">
-				<p>Loading data...</p>
-			</div>
-			<div class="card" x-show="!loading">
-				<h2 x-text="record.record_name"></h2>
-				<div class="field">
-					<label for="fgas_record_id">ID:</label>
-					<input x-model="record.record_name" name="fgas_record_id" type="text" readonly />
+	<section id="forms" x-show="show_forms">
+		<div x-cloak x-data="FGASRecord" @get-record.window="getRecord()">
+			<section>
+				<div class="card" x-show="loading">
+					<p>Loading data...</p>
 				</div>
-				<div class="field">
-					<label for="sales_order_number">SO:</label>
-					<input x-model="Alpine.store('salesorder_number')" name="sales_order_number" type="text" readonly />
+				<div class="card" x-show="!loading">
+					<h2 x-text="record.record_name"></h2>
+					<div class="field">
+						<label for="fgas_record_id">ID:</label>
+						<input x-model="record.record_name" name="fgas_record_id" type="text" readonly />
+					</div>
+					<div class="field">
+						<label for="sales_order_number">SO:</label>
+						<input x-model="Alpine.store('salesorder_number')" name="sales_order_number" type="text" readonly />
+					</div>
 				</div>
-				<!-- <div class="action-wrapper">
-					<button disabled type="button">Next</button>
-				</div> -->
-			</div>
-		</section>
-	</div>
+			</section>
+		</div>
 
-	<div x-cloak x-data="FGASItems" @get-record.window="getItemRecords()">
-		<section>
-			<div class="card" x-show="loading">
-				<p>Loading data...</p>
-			</div>
-			<div class="toolbar" x-show="!loading">
-				<div class="dots">
-					<template x-for="[id, item] in Object.entries(records)" :key="id">
-						<div class="dot"
-							:class="[( id == activeIndex ? 'active' : '' ), ( item.is_new == true ? 'new' : '' )]"
-							@click="setActiveRecord(id)" x-text="Number(id)+1">
+		<div x-cloak x-data="FGASItems" @get-record.window="getItemRecords()">
+			<section>
+				<div class="card" x-show="loading">
+					<p>Loading data...</p>
+				</div>
+				<div class="toolbar" x-show="!loading">
+					<div class="dots">
+						<template x-for="[id, item] in Object.entries(records)" :key="id">
+							<div class="dot"
+								:class="[( id == activeIndex ? 'active' : '' ), ( item.is_new == true ? 'new' : '' )]"
+								@click="setActiveRecord(id)" x-text="Number(id)+1">
+							</div>
+						</template>
+					</div>
+					<h1>Equipment</h1>
+					<div class="actions">
+						<div class="add" @click="addItem()" title="Add Item">+</div>
+						<div class="delete" @click="deleteItem()" title="Delete Item">x</div>
+					</div>
+				</div>
+				<div class="card" x-show="records.length == 0">
+					<p>No Equipment records.</p>
+				</div>
+				<template x-show="!loading" x-if="activeRecord">
+					<div class="card">
+						<h2 x-text="activeRecord.cf_fgas_item_id"></h2>
+						<div class="field col-span-2">
+							<label for="total_gas">Total Gas Charge (g):</label>
+							<input x-model="activeRecord.total_gas" name="total_gas" type="number" readonly />
 						</div>
-					</template>
-				</div>
-				<h1>Equipment</h1>
-				<div class="actions">
-					<div class="add" @click="addItem()" title="Add Item">+</div>
-					<div class="delete" @click="deleteItem()" title="Delete Item">x</div>
-				</div>
-			</div>
-			<template x-show="!loading" x-if="activeRecord">
-				<div class="card">
-					<h2 x-text="activeRecord.cf_fgas_item_id"></h2>
-					<div class="field col-span-2">
-						<label for="total_gas">Total Gas Charge (g):</label>
-						<input x-model="activeRecord.total_gas" name="total_gas" type="number" readonly />
-					</div>
-					<div class="field">
-						<label for="sku">SKU:</label>
-						<input x-model="activeRecord.cf_sku" name="sku" type="text" :readonly="!activeRecord.is_new" :required="activeRecord.is_new" />
-					</div>
-					<div class="field">
-						<label for="charge">Charge (g):</label>
-						<input x-model="activeRecord.cf_charge_g" x-on:change.debounce="calcTotalGas()" name="charge" type="number" required />
-					</div>
-					<div class="field">
-						<label for="refrigerant">Refrigerant Gas:</label>
-						<input x-model="activeRecord.cf_gas_type" name="refrigerant" type="text" required />
-					</div>
-					<div class="field">
-						<label for="quantity">Quantity:</label>
-						<input x-model="activeRecord.cf_quantity" x-on:change.debounce="calcTotalGas()" name="quantity" type="number" required />
-					</div>
-					<div class="field">
-						<label for="notes">Notes:</label>
-						<textarea x-model="activeRecord.cf_notes" rows="3" cols="40"></textarea>
-					</div>
-				</div>
-			</template>
-		</section>
-	</div>
-	
-	<div x-cloak x-data="FGASInstallers" @get-record.window="getInstallerRecords()">
-		<section>
-			<div class="card" x-show="loading">
-				<p>Loading data...</p>
-			</div>
-			<div class="toolbar" x-show="!loading">
-				<div class="dots">
-					<template x-for="[id, item] in Object.entries(records)" :key="id">
-						<div class="dot"
-							:class="[( id == activeIndex ? 'active' : '' ), ( item.is_new == true ? 'new' : '' )]"
-							@click="setActiveRecord(id)" x-text="Number(id)+1">
+						<div class="field">
+							<label for="sku">SKU:</label>
+							<input x-model="activeRecord.cf_sku" name="sku" type="text" :readonly="!activeRecord.is_new" :required="activeRecord.is_new" />
 						</div>
-					</template>
-				</div>
-				<h1>Installers</h1>
-				<div class="actions">
-					<div class="add" @click="addInstaller()" title="Add Installer">+</div>
-					<div class="delete" @click="deleteInstaller()" title="Delete Installer">x</div>
-				</div>
-			</div>
-			<template x-show="!loading" x-if="activeRecord">
-				<div class="card">
-					<h2 x-text="activeRecord.cf_installer_id"></h2>
-					<div class="field col-span-2">
-						<label for="name">Name:</label>
-						<input x-model="activeRecord.cf_installer_name" name="name" type="text" required />
+						<div class="field">
+							<label for="charge">Charge (g):</label>
+							<input x-model="activeRecord.cf_charge_g" x-on:change.debounce="calcTotalGas()" name="charge" type="number" required />
+						</div>
+						<div class="field">
+							<label for="refrigerant">Refrigerant Gas:</label>
+							<input x-model="activeRecord.cf_gas_type" name="refrigerant" type="text" required />
+						</div>
+						<div class="field">
+							<label for="quantity">Quantity:</label>
+							<input x-model="activeRecord.cf_quantity" x-on:change.debounce="calcTotalGas()" name="quantity" type="number" required />
+						</div>
+						<div class="field">
+							<label for="notes">Notes:</label>
+							<textarea x-model="activeRecord.cf_notes" rows="3" cols="40"></textarea>
+						</div>
 					</div>
-					<div class="field col-span-2">
-						<label for="fgas_number">FGAS Number:</label>
-						<input x-model="activeRecord.cf_fgas_number" name="fgas_number" type="text" required />
+				</template>
+			</section>
+		</div>
+		
+		<div x-cloak x-data="FGASInstallers" @get-record.window="getInstallerRecords()" >
+			<section>
+				<div class="card" x-show="loading">
+					<p>Loading data...</p>
+				</div>
+				<div class="toolbar" x-show="!loading">
+					<div class="dots">
+						<template x-for="[id, item] in Object.entries(records)" :key="id">
+							<div class="dot"
+								:class="[( id == activeIndex ? 'active' : '' ), ( item.is_new == true ? 'new' : '' )]"
+								@click="setActiveRecord(id)" x-text="Number(id)+1">
+							</div>
+						</template>
 					</div>
-					<div class="field">
-						<label for="notes">Notes:</label>
-						<textarea x-model="activeRecord.cf_notes" rows="3" cols="40"></textarea>
+					<h1>Installers</h1>
+					<div class="actions">
+						<div class="add" @click="addInstaller()" title="Add Installer">+</div>
+						<div class="delete" @click="deleteInstaller()" title="Delete Installer">x</div>
 					</div>
 				</div>
-			</template>
+				<div class="card" x-show="records.length == 0">
+					<p>No Installer records.</p>
+				</div>
+				<template x-show="!loading" x-if="activeRecord">
+					<div class="card">
+						<h2 x-text="activeRecord.cf_installer_id"></h2>
+						<div class="field col-span-2">
+							<label for="name">Name:</label>
+							<input x-model="activeRecord.cf_installer_name" name="name" type="text" required />
+						</div>
+						<div class="field col-span-2">
+							<label for="fgas_number">FGAS Number:</label>
+							<input x-model="activeRecord.cf_fgas_number" name="fgas_number" type="text" required />
+						</div>
+						<div class="field">
+							<label for="notes">Notes:</label>
+							<textarea x-model="activeRecord.cf_notes" rows="3" cols="40"></textarea>
+						</div>
+					</div>
+				</template>
+			</section>
+		</div>
+		<section class="actions">
+			<button type="submit" id="savebtn">Save FGAS Records</button>
 		</section>
-	</div>
+	</section>
+
+	<section id="loading" x-show="show_loading">
+		<p>Please wait, preparing data...</p>
+	</section>
 
 	<script src="https://js.zohostatic.com/zohofinance/v1/zf_sdk.js"></script>
 	<script src="js/alpineData.js"></script>
@@ -131,17 +151,28 @@
 
 			ZFAPPS.extension.init().then(function (App) {
 
-				// Prepare UI.
-				resizeModal().then(() => {
-				});
+				const createEvent = new CustomEvent('update-state', { 'detail': 'CREATE' });
+				const updateEvent = new CustomEvent('update-state', { 'detail': 'UPDATE' });
+				const validateEvent = new CustomEvent('update-state', { 'detail': 'VALIDATE' });
+				const processEvent = new CustomEvent('update-state', { 'detail': 'PROCESS' });
+				const loadingEvent = new CustomEvent('update-state');
 
-				// Prepare data.
-				getSONumber().then(() => {
-					const event = new CustomEvent('get-record');
-					window.dispatchEvent(event); // dispatch custom event to let FGASRecord know it can fetch now
-					console.log("'get-record' event dispatched!");
-					getFGASRelatedRecord("cm_fgas_installer", "fgasinstallers"); // Alpine.store('fgasinstallers')
-				});
+				// Prepare UI.
+				resizeModal('180px');
+
+				getSONumber();
+				getSOId();
+
+				window.dispatchEvent(createEvent);
+
+				// On save button click run validation...
+				// Dispatch event to update state from update to validate
+
+				// While !passes:
+					// Show validation errors
+
+				// Dispatch event to update state from validate to process		
+				// Update records in module		
 			
 			});
 
