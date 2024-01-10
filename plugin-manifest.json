@@ -8,9 +8,9 @@
     "widgets": [
       {
         "location": "salesorder.details.sidebar",
-        "name": "Inventory Extension",
+        "name": "F-GAS",
         "url": "/app/widget.html",
-        "logo": "/app/img/logo.png",
+        "logo": "/app/img/f-gas.png",
         "widget_type": "modal"
       }
     ]
