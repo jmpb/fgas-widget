@@ -3,11 +3,38 @@ document.addEventListener('alpine:init', () => {
     Alpine.data('state', () => ({
         item_mods: [],
         installer_mods: [],
+
+        items_validated: false,
+        item_validation_result: {},
+        installers_validated: false,
+        installer_validation_result: {},
+        validationProcessed: false,
+
         show_loading: true,
         show_create: false,
         show_forms: false,
         show_validation: false,
         show_process: false,
+
+        observeItemsValidated(result) {
+            console.log("Item validation: ");
+            console.log(result);
+            this.item_validation_result = result;
+            this.items_validated = true;
+            if (this.installers_validated && !this.validationProcessed) {
+                this.validationProcessed = true;
+            }
+        },
+
+        observeInstallersValidated(result) {
+            console.log("Installer validation: ");
+            console.log(result);
+            this.installer_validation_result = result;
+            this.installers_validated = true;
+            if (this.items_validated && !this.validationProcessed) {
+                this.validationProcessed = true;
+            }
+        },
 
         updateState(state) {
             console.log("Changing to state: " + state);
@@ -49,6 +76,20 @@ document.addEventListener('alpine:init', () => {
                     this.show_forms = false;
                     this.show_validation = false;
                     this.show_process = false;
+            }
+        },
+
+        validate() {
+            window.dispatchEvent(new CustomEvent('run-validate'));
+        },
+
+        showValidationResults() {
+            this.installers_validated = false;
+            this.items_validated = false;
+            this.validationProcessed = false;
+            window.dispatchEvent(new CustomEvent('show-validation'));
+            if (this.item_validation_result["pass"] || this.installer_validation_result["pass"]) {
+                // begin processing
             }
         },
 
@@ -99,6 +140,7 @@ document.addEventListener('alpine:init', () => {
         records: [],
         activeIndex: 0,
         activeRecord: {},
+        validation: {},
 
         getItemRecords() {
             console.log("Fetching item records...");
@@ -108,18 +150,6 @@ document.addEventListener('alpine:init', () => {
                 this.calcTotalGas();
                 this.loading = false;
             });
-        },
-
-        nextItemRecord() {
-            this.activeIndex < this.records.length ? this.activeIndex++ : this.activeIndex = 0;
-            this.activeRecord = this.records[this.activeIndex];
-            this.calcTotalGas();
-        },
-
-        prevItemRecord() {
-            this.activeIndex > 0 ? this.activeIndex-- : this.activeIndex = this.records.length;
-            this.activeRecord = this.records[this.activeIndex];
-            this.calcTotalGas();
         },
 
         setActiveRecord(id) {
@@ -157,7 +187,60 @@ document.addEventListener('alpine:init', () => {
             if (this.activeRecord) {
                 this.activeRecord.total_gas = this.activeRecord.cf_quantity * this.activeRecord.cf_charge_g;
             }
+        },
+
+        itemValidate() {
+            let result = {
+                "pass": false,
+                "records": []
+            };
+            // Loop through items and validate fields
+            this.records.forEach((item, index) => {
+                errors = {};
+                if (item.is_new && !item.cf_sku) {
+                    errors["cf_sku"] = "Sku is required.";
+                }
+                if (!item.cf_charge_g) {
+                    errors["cf_charge_g"] = "A charge is required.";
+                }
+                if (!item.cf_gas_type) {
+                    errors["cf_gas_type"] = "A refrigerant gas is required.";
+                }
+                if (!item.cf_quantity) {
+                    errors["cf_quantity"] = "Quantity is required.";
+                }
+                if (Object.keys(errors).length !== 0) {
+                    result["records"][index] = errors;
+                }
+            });
+
+            result["pass"] = !result["records"].length ? true : false;
+
+            this.validation = result;
+
+            // Dispatch event items-validation with result
+            window.dispatchEvent(new CustomEvent('item-validation', { detail: result }));
+        },
+
+        showItemValidation() {
+            console.log("Showing item validations");
+            if (Object.keys(this.validation["records"]).length > 0) {
+                for (const record_index in this.validation["records"]) {
+                    errors = this.validation["records"][record_index];
+                    this.records[record_index].invalid = true;
+                    this.records[record_index].errors = errors;
+                }
+                this.setActiveRecord(Object.keys(this.validation["records"])[0]);
+            } else {
+                this.records.forEach((record) => {
+                    record.invalid = false;
+                    record.errors = undefined;
+                });
+                this.activeRecord.invalid = false;
+                this.activeRecord.errors = undefined;
+            }
         }
+
     }));
 
     Alpine.data('FGASInstallers', () => ({
@@ -165,6 +248,7 @@ document.addEventListener('alpine:init', () => {
         records: [],
         activeIndex: 0,
         activeRecord: {},
+        validation: {},
 
         getInstallerRecords() {
             console.log("Fetching installer records...");
@@ -173,16 +257,6 @@ document.addEventListener('alpine:init', () => {
                 this.activeRecord = this.records[this.activeIndex];
                 this.loading = false;
             });
-        },
-
-        nextItemRecord() {
-            this.activeIndex < this.records.length ? this.activeIndex++ : this.activeIndex = 0;
-            this.activeRecord = this.records[this.activeIndex];
-        },
-
-        prevItemRecord() {
-            this.activeIndex > 0 ? this.activeIndex-- : this.activeIndex = this.records.length;
-            this.activeRecord = this.records[this.activeIndex];
         },
 
         setActiveRecord(id) {
@@ -210,5 +284,51 @@ document.addEventListener('alpine:init', () => {
                 this.activeRecord = this.records[this.activeIndex];
             }
         },
+
+        installerValidate() {
+            let result = {
+                "pass": false,
+                "records": []
+            };
+
+            this.records.forEach((installer, index) => {
+                errors = {};
+                if (!installer.cf_installer_name) {
+                    errors["cf_installer_name"] = "Installer Name is required.";
+                }
+                if (!installer.cf_fgas_number) {
+                    errors["cf_fgas_number"] = "FGAS Number is required.";
+                }
+                if (Object.keys(errors).length !== 0) {
+                    result["records"][index] = errors;
+                }
+            });
+
+            result["pass"] = !result["records"].length ? true : false;
+
+            this.validation = result;
+
+            // Dispatch event items-validation with: Result { pass: bool, errors: [] }
+            window.dispatchEvent(new CustomEvent('installer-validation', { detail: result }));
+        },
+
+        showInstallerValidation() {
+            console.log("Showing installer validations");
+            if (Object.keys(this.validation["records"]).length > 0) {
+                for (const record_index in this.validation["records"]) {
+                    errors = this.validation["records"][record_index];
+                    this.records[record_index].invalid = true;
+                    this.records[record_index].errors = errors;
+                }
+                this.setActiveRecord(Object.keys(this.validation["records"])[0]);
+            } else {
+                this.records.forEach((record) => {
+                    record.invalid = false;
+                    record.errors = undefined;
+                });
+                this.activeRecord.invalid = false;
+                this.activeRecord.errors = undefined;
+            }
+        }
     }));
 });

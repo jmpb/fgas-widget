@@ -19,6 +19,10 @@ section p {
     @apply p-4;
 }
 
+section p.error {
+    @apply text-red-600 font-bold pl-1 py-0;
+}
+
 h1 {
     @apply text-2xl w-full font-bold text-center;
 }
@@ -33,6 +37,10 @@ label {
 
 input {
     @apply px-2 ring-1 ring-slate-300 rounded shadow;
+}
+
+input.invalid {
+    @apply border-red-600 border-2;
 }
 
 input:read-only {
@@ -61,12 +69,20 @@ textarea {
     @apply bg-green-200;
 }
 
+.dot.invalid {
+    @apply bg-red-300;
+}
+
 .dot.active {
     @apply bg-sky-600;
 }
 
 .dot.active.new {
     @apply bg-green-600;
+}
+
+.dot.active.invalid {
+    @apply bg-red-600;
 }
 
 .toolbar h1 {

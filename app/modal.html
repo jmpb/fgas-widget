@@ -8,7 +8,10 @@
 	<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
 </head>
 
-<body x-data="state" @update-state.window="updateState($event.detail)">
+<body x-data="state" x-init="$watch('validationProcessed', (value) => {showValidationResults()})"
+	@update-state.window="updateState($event.detail)"
+	@item-validation.window="observeItemsValidated($event.detail)"
+	@installer-validation.window="observeInstallersValidated($event.detail)">
 	<section id="create" x-show="show_create">
 		<h1>Sale FGAS Records</h1>
 		<p>Click to create initial FGAS records linked to this Sales Order.</p>
@@ -39,7 +42,10 @@
 			</section>
 		</div>
 
-		<div x-cloak x-data="FGASItems" @get-record.window="getItemRecords()">
+		<div x-cloak x-data="FGASItems" 
+			@get-record.window="getItemRecords()" 
+			@run-validate.window="itemValidate()" 
+			@show-validation.window="showItemValidation()">
 			<section>
 				<div class="card" x-show="loading">
 					<p>Loading data...</p>
@@ -48,7 +54,11 @@
 					<div class="dots">
 						<template x-for="[id, item] in Object.entries(records)" :key="id">
 							<div class="dot"
-								:class="[( id == activeIndex ? 'active' : '' ), ( item.is_new == true ? 'new' : '' )]"
+								:class="[
+											( id == activeIndex ? 'active' : '' ),
+											( item.is_new == true ? 'new' : '' ),
+											( item.invalid == true ? 'invalid' : '')
+										]"
 								@click="setActiveRecord(id)" x-text="Number(id)+1">
 							</div>
 						</template>
@@ -71,19 +81,34 @@
 						</div>
 						<div class="field">
 							<label for="sku">SKU:</label>
-							<input x-model="activeRecord.cf_sku" name="sku" type="text" :readonly="!activeRecord.is_new" :required="activeRecord.is_new" />
+							<input x-model="activeRecord.cf_sku" name="sku" type="text" :readonly="!activeRecord.is_new" :required="activeRecord.is_new" :class="(((activeRecord.errors) && ('cf_sku' in activeRecord.errors)) ? 'invalid' : '')" />
+							<template x-if="((activeRecord.errors) && ('cf_sku' in activeRecord.errors))">
+								<p class="error" x-text="activeRecord.errors['cf_sku']"></p>
+							</template>
 						</div>
 						<div class="field">
 							<label for="charge">Charge (g):</label>
-							<input x-model="activeRecord.cf_charge_g" x-on:change.debounce="calcTotalGas()" name="charge" type="number" required />
+							<input x-model="activeRecord.cf_charge_g" x-on:change.debounce="calcTotalGas()" name="charge" type="number" required
+							:class="(((activeRecord.errors) && ('cf_charge_g' in activeRecord.errors)) ? 'invalid' : '')" />
+							<template x-if="((activeRecord.errors) && ('cf_charge_g' in activeRecord.errors))">
+								<p class="error" x-text="activeRecord.errors['cf_charge_g']"></p>
+							</template>
 						</div>
 						<div class="field">
 							<label for="refrigerant">Refrigerant Gas:</label>
-							<input x-model="activeRecord.cf_gas_type" name="refrigerant" type="text" required />
+							<input x-model="activeRecord.cf_gas_type" name="refrigerant" type="text" required
+							:class="(((activeRecord.errors) && ('cf_gas_type' in activeRecord.errors)) ? 'invalid' : '')" />
+							<template x-if="((activeRecord.errors) && ('cf_gas_type' in activeRecord.errors))">
+								<p class="error" x-text="activeRecord.errors['cf_gas_type']"></p>
+							</template>
 						</div>
 						<div class="field">
 							<label for="quantity">Quantity:</label>
-							<input x-model="activeRecord.cf_quantity" x-on:change.debounce="calcTotalGas()" name="quantity" type="number" required />
+							<input x-model="activeRecord.cf_quantity" x-on:change.debounce="calcTotalGas()" name="quantity" type="number" required
+							:class="(((activeRecord.errors) && ('cf_quantity' in activeRecord.errors)) ? 'invalid' : '')" />
+							<template x-if="((activeRecord.errors) && ('cf_quantity' in activeRecord.errors))">
+								<p class="error" x-text="activeRecord.errors['cf_quantity']"></p>
+							</template>
 						</div>
 						<div class="field">
 							<label for="notes">Notes:</label>
@@ -94,7 +119,10 @@
 			</section>
 		</div>
 		
-		<div x-cloak x-data="FGASInstallers" @get-record.window="getInstallerRecords()" >
+		<div x-cloak x-data="FGASInstallers"
+			@get-record.window="getInstallerRecords()" 
+			@run-validate.window="installerValidate()" 
+			@show-validation.window="showInstallerValidation()">
 			<section>
 				<div class="card" x-show="loading">
 					<p>Loading data...</p>
@@ -122,11 +150,19 @@
 						<h2 x-text="activeRecord.cf_installer_id"></h2>
 						<div class="field col-span-2">
 							<label for="name">Name:</label>
-							<input x-model="activeRecord.cf_installer_name" name="name" type="text" required />
+							<input x-model="activeRecord.cf_installer_name" name="name" type="text" required
+							:class="(((activeRecord.errors) && ('cf_installer_name' in activeRecord.errors)) ? 'invalid' : '')" />
+							<template x-if="((activeRecord.errors) && ('cf_installer_name' in activeRecord.errors))">
+								<p class="error" x-text="activeRecord.errors['cf_installer_name']"></p>
+							</template>
 						</div>
 						<div class="field col-span-2">
 							<label for="fgas_number">FGAS Number:</label>
-							<input x-model="activeRecord.cf_fgas_number" name="fgas_number" type="text" required />
+							<input x-model="activeRecord.cf_fgas_number" name="fgas_number" type="text" required
+							:class="(((activeRecord.errors) && ('cf_fgas_number' in activeRecord.errors)) ? 'invalid' : '')" />
+							<template x-if="((activeRecord.errors) && ('cf_fgas_number' in activeRecord.errors))">
+								<p class="error" x-text="activeRecord.errors['cf_fgas_number']"></p>
+							</template>
 						</div>
 						<div class="field">
 							<label for="notes">Notes:</label>
@@ -137,7 +173,7 @@
 			</section>
 		</div>
 		<section class="actions">
-			<button type="submit" id="savebtn">Save FGAS Records</button>
+			<button type="submit" id="savebtn" @click="validate()">Save FGAS Records</button>
 		</section>
 	</section>
 
@@ -165,12 +201,6 @@
 				getSOId();
 
 				window.dispatchEvent(createEvent);
-
-				// On save button click run validation...
-				// Dispatch event to update state from update to validate
-
-				// While !passes:
-					// Show validation errors
 
 				// Dispatch event to update state from validate to process		
 				// Update records in module		
