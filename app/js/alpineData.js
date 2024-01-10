@@ -88,7 +88,7 @@ document.addEventListener('alpine:init', () => {
             this.items_validated = false;
             this.validationProcessed = false;
             window.dispatchEvent(new CustomEvent('show-validation'));
-            if (this.item_validation_result["pass"] || this.installer_validation_result["pass"]) {
+            if (this.item_validation_result["pass"] && this.installer_validation_result["pass"]) {
                 // begin processing
             }
         },
