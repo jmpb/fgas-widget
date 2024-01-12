@@ -83,13 +83,15 @@ document.addEventListener('alpine:init', () => {
         },
 
         showValidationResults() {
-            this.installers_validated = false;
-            this.items_validated = false;
-            this.validationProcessed = false;
-            window.dispatchEvent(new CustomEvent('show-validation'));
-            if (this.item_validation_result["pass"] && this.installer_validation_result["pass"]) {
-                // begin processing
-                this.process();
+            if (this.validationProcessed) {
+                this.installers_validated = false;
+                this.items_validated = false;
+                this.validationProcessed = false;
+                window.dispatchEvent(new CustomEvent('show-validation'));
+                if (this.item_validation_result["pass"] && this.installer_validation_result["pass"]) {
+                    // begin processing
+                    this.process();
+                }
             }
         },
 
@@ -127,11 +129,13 @@ document.addEventListener('alpine:init', () => {
             data = JSON.parse(JSON.stringify(data));
 
             getSOId().then(async (resolve, reject) => {
-                await sendInventoryUpdateWebhook(data).then((result) => {
+                await sendInventoryUpdateWebhook(data).then((response) => {
                     // Deal with response from update.
                     console.log("Response from update webhook...");
-                    console.log(result);
-                    resolve();
+                    if (response.code == 0) {
+                        response_data = JSON.parse(response.data.body);
+                        console.log(response_data);
+                    }
                 });
             });
         },

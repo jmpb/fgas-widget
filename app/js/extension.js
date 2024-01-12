@@ -87,10 +87,6 @@ async function sendInventoryUpdateWebhook(data) {
             method: "POST",
             body: {
                 mode: 'raw',
-                // formdata: [{
-                //     key: 'data',
-                //     value: data
-                // }]
                 raw: data
             },
             connection_link_name: 'inv_conn'
