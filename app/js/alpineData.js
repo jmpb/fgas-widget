@@ -101,13 +101,27 @@ document.addEventListener('alpine:init', () => {
                 item_deletions: this.item_dels,
                 installer_deletions: this.installer_dels,
                 item_records: this.item_validation_result["items"],
-                installer_records: this.installer_validation_result["installers"]
+                installer_records: this.installer_validation_result["installers"],
+                fgas_record: Alpine.store('fgasrecord')
             };
 
             // Clean up the data
             data.item_records.forEach((item) => {
                 delete item.created_time;
+                delete item.created_by_id;
+                delete item.record_created_by;
+                delete item.record_last_modified_by;
                 delete item.total_gas;
+                delete item.last_modified_time;
+                delete item.last_modified_by_id;
+                delete item.module_api_name;
+                delete item.record_name;
+
+                Object.keys(item).forEach((key) => {
+                    if (key.includes("_formatted")) {
+                        delete item[key];
+                    }
+                });
             });
 
             data = JSON.parse(JSON.stringify(data));
