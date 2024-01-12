@@ -1,8 +1,8 @@
 document.addEventListener('alpine:init', () => {
 
     Alpine.data('state', () => ({
-        item_mods: [],
-        installer_mods: [],
+        item_dels: [],
+        installer_dels: [],
 
         items_validated: false,
         item_validation_result: {},
@@ -36,6 +36,16 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
+        observeItemDeletion(id) {
+            console.log("Item with ID: " + id + " has been deleted.");
+            this.item_dels.push(id);
+        },
+
+        observeInstallerDeletion(id) {
+            console.log("Installer with ID: " + id + " has been deleted.");
+            this.installer_dels.push(id);
+        },
+
         updateState(state) {
             console.log("Changing to state: " + state);
             switch (state) {
@@ -44,7 +54,6 @@ document.addEventListener('alpine:init', () => {
                     this.show_loading = false;
                     this.show_create = true;
                     this.show_forms = false;
-                    this.show_validation = false;
                     this.show_process = false;
                     break;
                 case "UPDATE":
@@ -52,29 +61,19 @@ document.addEventListener('alpine:init', () => {
                         this.show_loading = false;
                         this.show_create = false;
                         this.show_forms = true;
-                        this.show_validation = false;
                         this.show_process = false;
                     });
-                    break;
-                case "VALIDATE":
-                    this.show_loading = false;
-                    this.show_create = false;
-                    this.show_forms = false;
-                    this.show_validation = true;
-                    this.show_process = false;
                     break;
                 case "PROCESS":
                     this.show_loading = false;
                     this.show_create = false;
                     this.show_forms = false;
-                    this.show_validation = false;
                     this.show_process = true;
                     break;
                 default:
                     this.show_loading = true;
                     this.show_create = false;
                     this.show_forms = false;
-                    this.show_validation = false;
                     this.show_process = false;
             }
         },
@@ -90,7 +89,37 @@ document.addEventListener('alpine:init', () => {
             window.dispatchEvent(new CustomEvent('show-validation'));
             if (this.item_validation_result["pass"] && this.installer_validation_result["pass"]) {
                 // begin processing
+                this.process();
             }
+        },
+
+        process() {
+            // Update state from validate to process
+            this.updateState('PROCESS');
+            // Prepare data
+            data = {
+                item_deletions: this.item_dels,
+                installer_deletions: this.installer_dels,
+                item_records: this.item_validation_result["items"],
+                installer_records: this.installer_validation_result["installers"]
+            };
+
+            // Clean up the data
+            data.item_records.forEach((item) => {
+                delete item.created_time;
+                delete item.total_gas;
+            });
+
+            data = JSON.parse(JSON.stringify(data));
+
+            getSOId().then(async (resolve, reject) => {
+                await sendInventoryUpdateWebhook(data).then((result) => {
+                    // Deal with response from update.
+                    console.log("Response from update webhook...");
+                    console.log(result);
+                    resolve();
+                });
+            });
         },
 
         checkIfRecordsExist() {
@@ -176,6 +205,7 @@ document.addEventListener('alpine:init', () => {
 
         deleteItem() {
             if (confirm("Really delete FGAS record for item: " + this.activeRecord.cf_fgas_item_id + "? This cannot be undone.")) {
+                window.dispatchEvent(new CustomEvent('item-del', { detail: this.activeRecord.cf_fgas_item_id }));
                 this.records.splice(this.activeIndex, 1);
                 this.activeIndex = 0;
                 this.activeRecord = this.records[this.activeIndex];
@@ -217,6 +247,8 @@ document.addEventListener('alpine:init', () => {
             result["pass"] = !result["records"].length ? true : false;
 
             this.validation = result;
+
+            result["items"] = this.records;
 
             // Dispatch event items-validation with result
             window.dispatchEvent(new CustomEvent('item-validation', { detail: result }));
@@ -279,6 +311,7 @@ document.addEventListener('alpine:init', () => {
 
         deleteInstaller() {
             if (confirm("Really delete FGAS record for installer: " + this.activeRecord.cf_installer_name + "? This cannot be undone.")) {
+                window.dispatchEvent(new CustomEvent('installer-del', { detail: this.activeRecord.cf_installer_id }));
                 this.records.splice(this.activeIndex, 1);
                 this.activeIndex = 0;
                 this.activeRecord = this.records[this.activeIndex];
@@ -307,6 +340,8 @@ document.addEventListener('alpine:init', () => {
             result["pass"] = !result["records"].length ? true : false;
 
             this.validation = result;
+
+            result["installers"] = this.records;
 
             // Dispatch event items-validation with: Result { pass: bool, errors: [] }
             window.dispatchEvent(new CustomEvent('installer-validation', { detail: result }));

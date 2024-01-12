@@ -11,7 +11,9 @@
 <body x-data="state" x-init="$watch('validationProcessed', (value) => {showValidationResults()})"
 	@update-state.window="updateState($event.detail)"
 	@item-validation.window="observeItemsValidated($event.detail)"
-	@installer-validation.window="observeInstallersValidated($event.detail)">
+	@installer-validation.window="observeInstallersValidated($event.detail)"
+	@item-del.window="observeItemDeletion($event.detail)"
+	@installer-del.window="observeInstallerDeletion($event.detail)">
 	<section id="create" x-show="show_create">
 		<h1>Sale FGAS Records</h1>
 		<p>Click to create initial FGAS records linked to this Sales Order.</p>
@@ -200,10 +202,7 @@
 				getSONumber();
 				getSOId();
 
-				window.dispatchEvent(createEvent);
-
-				// Dispatch event to update state from validate to process		
-				// Update records in module		
+				window.dispatchEvent(createEvent);	
 			
 			});
 

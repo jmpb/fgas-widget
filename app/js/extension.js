@@ -1,4 +1,3 @@
-
 function resizeModal(height) {
     return new Promise((resolve, reject) => {
         ZFAPPS.invoke('RESIZE', { width: '600px', height: height }
@@ -73,6 +72,37 @@ function getFGASRecord() {
             reject(err);
         });
     })
+}
+
+async function sendInventoryUpdateWebhook(data) {
+    return new Promise((resolve, reject) => {
+        // Collect the records from the widget and send them to an Inventory
+        //      webhook which will update/create/delete them as appropriate.
+
+        console.log("Sending data to update webhook...");
+        console.log(data);
+
+        var options = {
+            url: 'https://www.zohoapis.eu/inventory/v1/settings/incomingwebhooks/iw_updatefgasrecords/execute?auth_type=apikey&encapiKey=yA6KbHsI6g3%2ByjlVREdr0MOLpo0xqK8%2F3Hiw5i63KMQue9m1i6E70BI9Jdu4czrZ34GFs65SONoYJNzt74lbesE0NYNSepTGTuv4P2uV48xh5qDzO7pIjJiqArAQEqJOeRIiDi0yR%2FQ%3D',
+            method: "POST",
+            body: {
+                mode: 'raw',
+                // formdata: [{
+                //     key: 'data',
+                //     value: data
+                // }]
+                raw: data
+            },
+            connection_link_name: 'inv_conn'
+        };
+
+        ZFAPPS.request(options).then(function (response) {
+            console.log(response);
+            resolve(response);
+        }).catch((error) => {
+            reject(error);
+        });
+    });
 }
 
 async function sendInventoryCreateWebhook() {
