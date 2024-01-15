@@ -16,10 +16,11 @@
 	@installer-del.window="observeInstallerDeletion($event.detail)">
 	<section id="create" x-show="show_create">
 		<h1>Sale FGAS Records</h1>
-		<p>Click to create initial FGAS records linked to this Sales Order.</p>
-		<p>You will then be able to modify the records as necessary.</p>
+		<p>Click to view FGAS records linked to this Sales Order.</p>
+		<p>If none exist, initial ones will be created. You will then be able to modify the records as necessary.</p>
+		<p>If they have been created previously, you will be able to view and modify them as necessary.</p>
 		<div class="actions">
-			<button type="button" id="createbtn" @click="checkIfRecordsExist()">View FGAS Records</button>
+			<button type="button" id="createbtn" @click="checkIfRecordsExist()">Okay, let's go!</button>
 		</div>
 	</section>
 
@@ -183,11 +184,71 @@
 		<p>Please wait, preparing data...</p>
 	</section>
 
+	<section id="process" x-show="show_process">
+		<div x-cloak x-show="process_response">
+			<div x-show="(process_response.code !== 0)">
+				<div class="card">
+					<h1>Something went wrong: <span x-text="process_response.code"></span></h1>
+					<p x-text="process_response.message"></p>
+				</div>
+			</div>
+			<div x-show="process_response">
+				<div class="card">
+					<h1>FGAS Record Updates</h1>
+					<p>Below is a breakdown of the actions performed on the records.</p>
+					<div x-show="(process_response.item_updates != undefined && process_response.item_updates.length > 0)">
+						<h3>Items</h3>
+						<template x-for="record in process_response.item_updates">
+							<div :class="(record.action == 'update' ? 'update' : 'create')">
+								<p :class="(record.code != 0 ? 'failure' : '')">
+									<span class="id" x-text="record.id"></span>
+									<span x-text="record.message"></span> <span class="code">(<span x-text="record.code"></span>)</span>
+								</p>
+							</div>
+						</template>
+					</div>
+					<div x-show="(process_response.installer_updates != undefined && process_response.installer_updates.length > 0)">
+						<h3>Installers</h3>
+						<template x-for="record in process_response.installer_updates">
+							<div :class="(record.action == 'update' ? 'update' : 'create')">
+								<p :class="(record.code != 0 ? 'failure' : '')">
+									<span x-text="record.id"></span>
+									<span x-text="record.message"></span> <span class="code">(<span x-text="record.code"></span>)</span>
+								</p>
+							</div>
+						</template>
+					</div>
+					<div x-show="(process_response.item_deletions != undefined && process_response.item_deletions.length > 0)">
+						<h3>Item deletions</h3>
+						<template x-for="record in process_response.item_deletions">
+							<div class="delete">
+								<p :class="(record.code != 0 ? 'failure' : '')">
+									<span class="id" x-text="record.id"></span>
+									<span x-text="record.message"></span> <span class="code">(<span x-text="record.code"></span>)</span>
+								</p>
+							</div>
+						</template>
+					</div>
+					<div x-show="(process_response.installer_deletions != undefined && process_response.installer_deletions.length > 0)">
+						<h3>Installer deletions</h3>
+						<template x-for="record in process_response.installer_deletions">
+							<div class="delete">
+								<p :class="(record.code != 0 ? 'failure' : '')">
+									<span class="id" x-text="record.id"></span>
+									<span x-text="record.message"></span> <span class="code">(<span x-text="record.code"></span>)</span>
+								</p>
+							</div>
+						</template>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
 	<script src="https://js.zohostatic.com/zohofinance/v1/zf_sdk.js"></script>
 	<script src="js/alpineData.js"></script>
 	<script>
 		window.onload = function () {
-
 			ZFAPPS.extension.init().then(function (App) {
 
 				const createEvent = new CustomEvent('update-state', { 'detail': 'CREATE' });
@@ -197,7 +258,7 @@
 				const loadingEvent = new CustomEvent('update-state');
 
 				// Prepare UI.
-				resizeModal('250px');
+				resizeModal('400px');
 
 				getSONumber();
 				getSOId();

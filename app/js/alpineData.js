@@ -10,6 +10,8 @@ document.addEventListener('alpine:init', () => {
         installer_validation_result: {},
         validationProcessed: false,
 
+        process_response: {},
+
         show_loading: true,
         show_create: false,
         show_forms: false,
@@ -126,15 +128,37 @@ document.addEventListener('alpine:init', () => {
                 });
             });
 
+            data.installer_records.forEach((installer) => {
+                delete installer.created_time;
+                delete installer.created_by_id;
+                delete installer.record_created_by;
+                delete installer.record_last_modified_by;
+                delete installer.total_gas;
+                delete installer.last_modified_time;
+                delete installer.last_modified_by_id;
+                delete installer.module_api_name;
+                delete installer.record_name;
+                
+                Object.keys(installer).forEach((key) => {
+                    if (key.includes("_formatted")) {
+                        delete installer[key];
+                    }
+                });
+            });
+
             data = JSON.parse(JSON.stringify(data));
 
             getSOId().then(async (resolve, reject) => {
+                this.updateState(""); // Loading
                 await sendInventoryUpdateWebhook(data).then((response) => {
                     // Deal with response from update.
                     console.log("Response from update webhook...");
                     if (response.code == 0) {
                         response_data = JSON.parse(response.data.body);
-                        console.log(response_data);
+                        this.process_response = response_data.response;
+                        Alpine.store('updateresponse', this.process_response.response);
+                        console.log(this.process_response);
+                        window.dispatchEvent(new CustomEvent('update-state', { detail: "PROCESS" }));
                     }
                 });
             });
@@ -379,8 +403,10 @@ document.addEventListener('alpine:init', () => {
                     record.invalid = false;
                     record.errors = undefined;
                 });
-                this.activeRecord.invalid = false;
-                this.activeRecord.errors = undefined;
+                if (this.activeRecord) {
+                    this.activeRecord.invalid = false;
+                    this.activeRecord.errors = undefined;
+                }
             }
         }
     }));

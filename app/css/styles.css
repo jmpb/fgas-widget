@@ -23,6 +23,52 @@ section p.error {
     @apply text-red-600 font-bold pl-1 py-0;
 }
 
+section#process div.card {
+    @apply block;
+}
+
+section#process div.card h3 {
+    @apply text-xl font-bold;
+}
+
+#process .id {
+    @apply font-bold italic;
+}
+
+#process .delete, #process .update, #process .create {
+    @apply relative text-sm pl-8;
+}
+
+#process p {
+    @apply p-2;
+}
+
+#process .code {
+    @apply text-xs italic;
+}
+
+#process .failure {
+    @apply text-red-800 font-bold;
+}
+
+#process .delete::before {
+    content: 'x';
+    @apply bg-red-500 text-white font-bold text-sm rounded-full text-center;
+    @apply top-1/4 -left-0 absolute w-5 h-5;
+}
+
+#process .create::before {
+    content: '\2713';
+    @apply bg-green-500 text-white font-bold text-sm rounded-full text-center;
+    @apply top-1/4 -left-0 absolute w-5 h-5;
+}
+
+#process .update::before {
+    content: '\2191';
+    @apply bg-blue-500 text-white font-bold text-sm rounded-full text-center;
+    @apply top-1/4 -left-0 absolute w-5 h-5;
+}
+
 h1 {
     @apply text-2xl w-full font-bold text-center;
 }

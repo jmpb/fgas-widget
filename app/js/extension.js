@@ -67,7 +67,7 @@ function getFGASRecord() {
                     resolve(element);
                 }
             };
-            resolve(undefined);
+            resolve("No records");
         }).catch(function (err) {
             reject(err);
         });
