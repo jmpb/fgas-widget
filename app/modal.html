@@ -197,7 +197,7 @@
 					<h1>FGAS Record Updates</h1>
 					<p>Below is a breakdown of the actions performed on the records.</p>
 					<div x-show="(process_response.item_updates != undefined && process_response.item_updates.length > 0)">
-						<h3>Items</h3>
+						<h3>Equipment</h3>
 						<template x-for="record in process_response.item_updates">
 							<div :class="(record.action == 'update' ? 'update' : 'create')">
 								<p :class="(record.code != 0 ? 'failure' : '')">
@@ -212,7 +212,7 @@
 						<template x-for="record in process_response.installer_updates">
 							<div :class="(record.action == 'update' ? 'update' : 'create')">
 								<p :class="(record.code != 0 ? 'failure' : '')">
-									<span x-text="record.id"></span>
+									<span class="id" x-text="record.id"></span>
 									<span x-text="record.message"></span> <span class="code">(<span x-text="record.code"></span>)</span>
 								</p>
 							</div>
