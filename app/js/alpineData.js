@@ -187,6 +187,8 @@ document.addEventListener('alpine:init', () => {
                             await getFGASRecord();
                             resolve();
                         });
+                    } else {
+                        resolve();
                     }
                 });
             }).then(() => {
