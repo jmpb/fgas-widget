@@ -18,6 +18,17 @@ document.addEventListener('alpine:init', () => {
         show_validation: false,
         show_process: false,
 
+        observeReset() {
+            this.item_dels = [];
+            this.installer_dels = [];
+            this.items_validated = false;
+            this.item_validation_result = {}
+            this.installers_validated = false;
+            this.installer_validation_result = {};
+            this.validationProcessed = false;
+            this.process_response = {};
+        },
+
         observeItemsValidated(result) {
             console.log("Item validation: ");
             console.log(result);
@@ -202,6 +213,10 @@ document.addEventListener('alpine:init', () => {
                 this.record = data;
                 this.loading = false;
             });
+        },
+
+        resetFGASRecord() {
+            this.record = {};
         }
 
     }));
@@ -313,6 +328,14 @@ document.addEventListener('alpine:init', () => {
                 this.activeRecord.invalid = false;
                 this.activeRecord.errors = undefined;
             }
+        },
+
+        resetFGASItems() {
+            this.loading = true;
+            this.records = [];
+            this.activeIndex = 0;
+            this.activeRecord = {};
+            this.validation = {};
         }
 
     }));
@@ -408,6 +431,14 @@ document.addEventListener('alpine:init', () => {
                     this.activeRecord.errors = undefined;
                 }
             }
+        },
+
+        resetFGASInstallers() {
+            this.loading = true;
+            this.records = [];
+            this.activeIndex = 0;
+            this.activeRecord = {};
+            this.validation = {};
         }
     }));
 });

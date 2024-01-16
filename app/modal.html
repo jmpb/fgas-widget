@@ -13,7 +13,8 @@
 	@item-validation.window="observeItemsValidated($event.detail)"
 	@installer-validation.window="observeInstallersValidated($event.detail)"
 	@item-del.window="observeItemDeletion($event.detail)"
-	@installer-del.window="observeInstallerDeletion($event.detail)">
+	@installer-del.window="observeInstallerDeletion($event.detail)"
+	@reset.window="observeReset()">
 	<section id="create" x-show="show_create">
 		<h1>Sale FGAS Records</h1>
 		<p>Click to view FGAS records linked to this Sales Order.</p>
@@ -26,7 +27,7 @@
 
 	<section id="forms" x-show="show_forms">
 		<h1>Sale FGAS Records</h1>
-		<div x-cloak x-data="FGASRecord" @get-record.window="getRecord()">
+		<div x-cloak x-data="FGASRecord" @get-record.window="getRecord()" @reset.window="resetFGASRecord()">
 			<section>
 				<div class="card" x-show="loading">
 					<p>Loading data...</p>
@@ -48,7 +49,8 @@
 		<div x-cloak x-data="FGASItems" 
 			@get-record.window="getItemRecords()" 
 			@run-validate.window="itemValidate()" 
-			@show-validation.window="showItemValidation()">
+			@show-validation.window="showItemValidation()"
+			@reset.window="resetFGASItems()">
 			<section>
 				<div class="card" x-show="loading">
 					<p>Loading data...</p>
@@ -125,7 +127,8 @@
 		<div x-cloak x-data="FGASInstallers"
 			@get-record.window="getInstallerRecords()" 
 			@run-validate.window="installerValidate()" 
-			@show-validation.window="showInstallerValidation()">
+			@show-validation.window="showInstallerValidation()"
+			@reset.window="resetFGASInstallers()">
 			<section>
 				<div class="card" x-show="loading">
 					<p>Loading data...</p>
@@ -249,13 +252,21 @@
 	<script src="js/alpineData.js"></script>
 	<script>
 		window.onload = function () {
+
+			// Clear data each time the widget is loaded
+			Alpine.store('fgasrecord', {Value: null});
+			Alpine.store('fgasitems', {Value: null});
+			Alpine.store('fgasinstallers', {Value: null});
+			Alpine.store('salesorder_number', {Value: null});
+			Alpine.store('salesorder_id', {Value: null});
+			Alpine.store('updateresponse', {Value: null});
+
+			const resetEvent = new CustomEvent('reset');
+			window.dispatchEvent(resetEvent);
+
 			ZFAPPS.extension.init().then(function (App) {
 
 				const createEvent = new CustomEvent('update-state', { 'detail': 'CREATE' });
-				const updateEvent = new CustomEvent('update-state', { 'detail': 'UPDATE' });
-				const validateEvent = new CustomEvent('update-state', { 'detail': 'VALIDATE' });
-				const processEvent = new CustomEvent('update-state', { 'detail': 'PROCESS' });
-				const loadingEvent = new CustomEvent('update-state');
 
 				// Prepare UI.
 				resizeModal('400px');
