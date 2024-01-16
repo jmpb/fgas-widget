@@ -178,16 +178,28 @@ document.addEventListener('alpine:init', () => {
         checkIfRecordsExist() {
             console.log("Checking if record exists...");
             getFGASRecord().then(async (record) => {
-                console.log(record);
-                if(!record) {
-                    window.dispatchEvent(new CustomEvent('update-state'));
-                    console.log("No record found, creating...");
-                    await this.createFGASRecords();
-                }
+                return new Promise((resolve, reject) => {
+                    console.log(record);
+                    if(!record) {
+                        window.dispatchEvent(new CustomEvent('update-state'));
+                        console.log("No record found, creating...");
+                        this.createFGASRecords().then(async () => {
+                            await getFGASRecord();
+                            resolve();
+                        });
+                    }
+                });
             }).then(() => {
+                console.log("Saving fgas record ID");
+                // store the fgas record's ID to use to fetch related records
+                fgasrecord_id = Alpine.store('fgasrecord').module_record_id;
+                Alpine.store('fgasrecord_id', fgasrecord_id);
+                console.log(Alpine.store('fgasrecord_id'));
+            }).then(() => {
+                console.log("FGAS record ID: " + Alpine.store('fgasrecord_id'));
+                console.log("Sending event to get records.");
                 // Get related
                 window.dispatchEvent(new CustomEvent('get-record')); // dispatch custom event to let FGASRecord know it can fetch now
-                getFGASRelatedRecord("cm_fgas_installer", "fgasinstallers"); // Alpine.store('fgasinstallers')
             }).then(() => {
                 // Dispatch event
                 window.dispatchEvent(new CustomEvent('update-state', { detail: 'UPDATE' }));
@@ -198,7 +210,10 @@ document.addEventListener('alpine:init', () => {
 
         async createFGASRecords() {
             console.log("Sending SO ID to create webhook in Zoho Inventory...");
-            await sendInventoryCreateWebhook();
+            await sendInventoryCreateWebhook().then(async (response) => {
+                console.log("Create FGAS record response: ");
+                console.log(response);
+            });
         }
 
     }));

@@ -35,7 +35,7 @@ function getSOId() {
     });
 }
 
-function getFGASRecord() {
+async function getFGASRecord() {
     return new Promise((resolve, reject) => {
         
         let so_number = Alpine.store('salesorder_number');
@@ -51,7 +51,7 @@ function getFGASRecord() {
                 value: '20067754174'
             },
             {
-                key:"cf_record_id",
+                key:"cf_linked_sales_order",
                 value: fgas_record_name
             }
             ],
@@ -63,15 +63,17 @@ function getFGASRecord() {
             for (let index = 0; index < responseJSON.module_records.length; index++) {
                 const element = responseJSON.module_records[index];
                 if (element.record_name == fgas_record_name) {
+                    console.log("found fgas record: ");
+                    console.log(element);
                     Alpine.store("fgasrecord", element);
                     resolve(element);
                 }
             };
-            resolve("No records");
+            resolve(undefined);
         }).catch(function (err) {
             reject(err);
         });
-    })
+    });
 }
 
 async function sendInventoryUpdateWebhook(data) {
@@ -130,8 +132,8 @@ async function sendInventoryCreateWebhook() {
 function getFGASRelatedRecord(module_api_name, store_key) {
     return new Promise((resolve, reject) => {
 
-        let so_number = Alpine.store('salesorder_number');
-        let fgas_record_name = so_number.replace("SO", "FGAS");
+        console.log("Fetching related records for" + store_key);
+        let fgas_record_id = Alpine.store('fgasrecord_id');
 
         // fetch the FGAS related data for the salesorder from the custom module
         var options = {
@@ -144,14 +146,18 @@ function getFGASRelatedRecord(module_api_name, store_key) {
             },
             {
                 key:"cf_fgas_record",
-                value: fgas_record_name
+                value: fgas_record_id
             }
             ],
             connection_link_name: 'inv_conn'
         };
 
+        console.log("fgas record name is: ");
+        console.log(fgas_record_id);
+
         ZFAPPS.request(options).then(function (response) {
             let responseJSON = JSON.parse(response.data.body);
+            console.log(responseJSON);
             Alpine.store(store_key, responseJSON.module_records);
             resolve(responseJSON.module_records);
         }).catch(function (err) {
