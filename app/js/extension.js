@@ -60,15 +60,18 @@ async function getFGASRecord() {
 
         ZFAPPS.request(options).then(function (response) {
             let responseJSON = JSON.parse(response.data.body);
-            for (let index = 0; index < responseJSON.module_records.length; index++) {
-                const element = responseJSON.module_records[index];
-                if (element.record_name == fgas_record_name) {
-                    console.log("found fgas record: ");
-                    console.log(element);
-                    Alpine.store("fgasrecord", element);
-                    resolve(element);
-                }
-            };
+            console.log(responseJSON);
+            if (responseJSON.module_records) {
+                for (let index = 0; index < responseJSON.module_records.length; index++) {
+                    const element = responseJSON.module_records[index];
+                    if (element.record_name == fgas_record_name) {
+                        console.log("found fgas record: ");
+                        console.log(element);
+                        Alpine.store("fgasrecord", element);
+                        resolve(element);
+                    }
+                };
+            }
             resolve(undefined);
         }).catch(function (err) {
             reject(err);
