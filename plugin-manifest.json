@@ -23,7 +23,7 @@
       "serviceName": "zoho_inventory",
       "userAccess": true,
       "isUserDefinedService": false,
-      "sharedBy": "20067754174",
+      "sharedBy": "<org-id>",
       "scope": [
         "ZohoInventory.FullAccess.all"
       ]

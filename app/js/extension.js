@@ -48,7 +48,7 @@ async function getFGASRecord() {
             url_query: [
             {
                 key: 'organization_id',
-                value: '20067754174'
+                value: '<org-id>'
             },
             {
                 key:"cf_linked_sales_order",
@@ -88,7 +88,7 @@ async function sendInventoryUpdateWebhook(data) {
         console.log(data);
 
         var options = {
-            url: 'https://www.zohoapis.eu/inventory/v1/settings/incomingwebhooks/iw_updatefgasrecords/execute?auth_type=apikey&encapiKey=yA6KbHsI6g3%2ByjlVREdr0MOLpo0xqK8%2F3Hiw5i63KMQue9m1i6E70BI9Jdu4czrZ34GFs65SONoYJNzt74lbesE0NYNSepTGTuv4P2uV48xh5qDzO7pIjJiqArAQEqJOeRIiDi0yR%2FQ%3D',
+            url: '<webhook-url>',
             method: "POST",
             body: {
                 mode: 'raw',
@@ -112,7 +112,7 @@ async function sendInventoryCreateWebhook() {
         //      the webhook will run Deluge code to create the FGAS records
         //      for the SO.
         var options = {
-            url: 'https://www.zohoapis.eu/inventory/v1/settings/incomingwebhooks/iw_createfgasrecords/execute?auth_type=apikey&encapiKey=yA6KbHsI6g3%2ByjlVREdr0MOLpo0xqK8%2F3Hiw5i63KMQue9m1i6E70BI9Jdu4czrZ34GFs65SONoYJNzt74lbesE0NYNSepTGTuv4P2uV48xh%2FobsBIlIjJiqArAQEqJOeRIjAyQwRvA%3D',
+            url: '<webhook-url>',
             method: "GET",
             url_query: [
             {
@@ -145,7 +145,7 @@ function getFGASRelatedRecord(module_api_name, store_key) {
             url_query: [
             {
                 key: 'organization_id',
-                value: '20067754174'
+                value: '<org-id>'
             },
             {
                 key:"cf_fgas_record",
