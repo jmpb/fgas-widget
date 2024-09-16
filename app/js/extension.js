@@ -43,7 +43,7 @@ async function getFGASRecord() {
 
         // fetch the FGAS data for the salesorder from the custom module
         var options = {
-            url: 'https://inventory.zoho.eu/api/v1/cm_fgas_record/',
+            url: 'https://www.zohoapis.eu/inventory/v1/cm_fgas_record/',
             method: "GET",
             url_query: [
             {
@@ -140,7 +140,7 @@ function getFGASRelatedRecord(module_api_name, store_key) {
 
         // fetch the FGAS related data for the salesorder from the custom module
         var options = {
-            url: 'https://inventory.zoho.eu/api/v1/' + module_api_name +'/',
+            url: 'https://www.zohoapis.eu/inventory/v1/' + module_api_name +'/',
             method: "GET",
             url_query: [
             {
